@@ -7,8 +7,12 @@ const createCourse = async (data) => {
 const getAllCourses = async () => {
   return await courseRepository.getAllCourses();
 };
+const getCourseById = async (id) => {
+  return await courseRepository.getCourseById(id);
+};
 
 module.exports = {
   createCourse,
   getAllCourses,
+  getCourseById,
 };

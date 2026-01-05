@@ -1,4 +1,4 @@
-console.log("🔥 COURSE ROUTES LOADEDddddddddddddd");
+console.log("🔥 COURSE ROUTES LOADEDeeee");
 const express = require("express");
 const router = express.Router();
 const fs = require("fs");
@@ -9,17 +9,6 @@ const { protect } = require("../../middlewares/authMiddleware");
 
 const courseController = require("./courseController");
 const { validateCreateCourse } = require("./courseValidation");
-
-// const storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, path.join(__dirname, "../../../uploads"));
-//   },
-//   filename: function (req, file, cb) {
-//     const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
-//     const ext = path.extname(file.originalname);
-//     cb(null, `${file.fieldname}-${unique}${ext}`);
-//   },
-// });
 
 const uploadDir = path.join(__dirname, "../../../uploads");
 
@@ -60,5 +49,7 @@ router.post(
 );
 
 router.get("/", courseController.getCourses);
+
+router.get("/:id", courseController.getCourseById);
 
 module.exports = router;
