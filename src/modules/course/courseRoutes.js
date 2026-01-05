@@ -1,6 +1,7 @@
-console.log("🔥 COURSE ROUTES LOADED");
+console.log("🔥 COURSE ROUTES LOADEDddddddddddddd");
 const express = require("express");
 const router = express.Router();
+const fs = require("fs");
 const path = require("path");
 const multer = require("multer");
 
@@ -9,9 +10,26 @@ const { protect } = require("../../middlewares/authMiddleware");
 const courseController = require("./courseController");
 const { validateCreateCourse } = require("./courseValidation");
 
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, path.join(__dirname, "../../../uploads"));
+//   },
+//   filename: function (req, file, cb) {
+//     const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
+//     const ext = path.extname(file.originalname);
+//     cb(null, `${file.fieldname}-${unique}${ext}`);
+//   },
+// });
+
+const uploadDir = path.join(__dirname, "../../../uploads");
+
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, "../../../uploads"));
+    cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
     const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
