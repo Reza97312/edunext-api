@@ -9,6 +9,7 @@ const specs = require("./config/swagger");
 const authRoutes = require("./modules/auth/authRoutes");
 
 const app = express();
+app.set("trust proxy", 1);
 
 app.use(
   helmet({
