@@ -98,7 +98,7 @@ const createCourse = async (req, res, next) => {
       "/",
     )}`;
 
-    console.log("FILESSSS:", files);
+    console.log("FILESSSS:");
 
     const { title, category, teacherName } = req.body;
     const rating = req.body.rating !== undefined ? Number(req.body.rating) : 0;
