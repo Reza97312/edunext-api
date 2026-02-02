@@ -58,7 +58,6 @@
 //   createCourse,
 //   getCourses,
 // };
-console.log("FILESSSS:", files);
 const courseService = require("./courseService");
 
 const makeFullImageUrl = (req, imgPath) => {
@@ -98,6 +97,8 @@ const createCourse = async (req, res, next) => {
       /\\/g,
       "/",
     )}`;
+
+    console.log("FILESSSS:", files);
 
     const { title, category, teacherName } = req.body;
     const rating = req.body.rating !== undefined ? Number(req.body.rating) : 0;
