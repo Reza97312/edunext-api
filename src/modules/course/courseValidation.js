@@ -14,10 +14,6 @@ const createSchema = Joi.object({
   price: Joi.number().min(0).required().messages({
     "number.base": "Price must be a number",
   }),
-
-  courseVideo: Joi.string().required().messages({
-    "string.empty": "courseVideo is required",
-  }),
 });
 
 const validate = (schema) => (req, res, next) => {
