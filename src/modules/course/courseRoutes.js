@@ -1,4 +1,4 @@
-console.log("🔥 COURSE ROUTES LOADEDeeee");
+console.log("🔥 COURSE ROUTES LOADEDwww");
 const express = require("express");
 const router = express.Router();
 const fs = require("fs");
