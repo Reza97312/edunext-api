@@ -27,12 +27,29 @@ const storage = multer.diskStorage({
   },
 });
 
+// const fileFilter = (req, file, cb) => {
+//   if (!file.mimetype.startsWith("image/")) {
+//     cb(new Error("Only image files are allowed!"), false);
+//   } else {
+//     cb(null, true);
+//   }
+// };
 const fileFilter = (req, file, cb) => {
-  if (!file.mimetype.startsWith("image/")) {
-    cb(new Error("Only image files are allowed!"), false);
-  } else {
-    cb(null, true);
+  if (file.fieldname === "courseImage" || file.fieldname === "teacherImage") {
+    if (!file.mimetype.startsWith("image/")) {
+      return cb(new Error("Only image files are allowed!"), false);
+    }
+    return cb(null, true);
   }
+
+  if (file.fieldname === "courseVideo") {
+    if (!file.mimetype.startsWith("video/")) {
+      return cb(new Error("Only video files are allowed!"), false);
+    }
+    return cb(null, true);
+  }
+
+  cb(new Error("Invalid file field"), false);
 };
 
 const upload = multer({ storage, fileFilter });
