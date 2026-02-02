@@ -84,11 +84,18 @@ const createCourse = async (req, res, next) => {
         .status(400)
         .json({ success: false, message: "Teacher image is required" });
     }
+    if (!files.courseVideo || !files.courseVideo[0]) {
+      return res.status(400).json({
+        success: false,
+        message: "Course video is required",
+      });
+    }
 
+    const courseVideoPath = `/${files.courseVideo[0].path.replace(/\\/g, "/")}`;
     const courseImagePath = `/${files.courseImage[0].path.replace(/\\/g, "/")}`;
     const teacherImagePath = `/${files.teacherImage[0].path.replace(
       /\\/g,
-      "/"
+      "/",
     )}`;
 
     const { title, category, teacherName } = req.body;
@@ -105,6 +112,7 @@ const createCourse = async (req, res, next) => {
       price,
       courseImage: courseImagePath,
       teacherImage: teacherImagePath,
+      courseVideo: courseVideoPath,
       createdBy,
     };
 
@@ -159,6 +167,7 @@ const getCourseById = async (req, res, next) => {
       price: course.price,
       courseImage: makeFullImageUrl(req, course.courseImage),
       teacherImage: makeFullImageUrl(req, course.teacherImage),
+      courseVideo: makeFullImageUrl(req, course.courseVideo),
       createdBy: course.createdBy,
       createdAt: course.createdAt,
       updatedAt: course.updatedAt,

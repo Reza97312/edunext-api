@@ -43,9 +43,10 @@ router.post(
   upload.fields([
     { name: "courseImage", maxCount: 1 },
     { name: "teacherImage", maxCount: 1 },
+    { name: "courseVideo", maxCount: 1 },
   ]),
   validateCreateCourse,
-  courseController.createCourse
+  courseController.createCourse,
 );
 
 router.get("/", courseController.getCourses);
