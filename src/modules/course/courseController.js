@@ -58,7 +58,7 @@
 //   createCourse,
 //   getCourses,
 // };
-console.log("FILES:", files);
+console.log("FILESSSS:", files);
 const courseService = require("./courseService");
 
 const makeFullImageUrl = (req, imgPath) => {
