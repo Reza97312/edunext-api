@@ -10,11 +10,10 @@ const specs = require("./config/swagger");
 const authRoutes = require("./modules/auth/authRoutes");
 const path = require("path");
 const courseRoutes = require("./modules/course/courseRoutes");
+const { UPLOADS_DIR } = require("./config/uploadConfig");
 
 const app = express();
 app.set("trust proxy", 1);
-
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use(
   helmet({
@@ -32,7 +31,7 @@ app.use(
 );
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
-app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+app.use("/uploads", express.static(UPLOADS_DIR));
 app.use("/api/courses", courseRoutes);
 
 app.use("/api/auth", authRoutes);
