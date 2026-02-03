@@ -14,10 +14,12 @@ const courseRoutes = require("./modules/course/courseRoutes");
 const app = express();
 app.set("trust proxy", 1);
 
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 app.use(
   helmet({
     contentSecurityPolicy: false,
-  })
+  }),
 );
 
 app.use(globalLimiter);
@@ -26,7 +28,7 @@ app.use(
   cors({
     origin: ["http://localhost:3000", "https://your-frontend-domain.com"],
     credentials: true,
-  })
+  }),
 );
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
