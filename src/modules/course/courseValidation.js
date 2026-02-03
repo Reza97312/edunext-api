@@ -14,6 +14,10 @@ const createSchema = Joi.object({
   price: Joi.number().min(0).required().messages({
     "number.base": "Price must be a number",
   }),
+  description: Joi.string().min(10).required().messages({
+    "string.empty": "Description is required",
+    "string.min": "Description must be at least 10 characters",
+  }),
 });
 
 const validate = (schema) => (req, res, next) => {

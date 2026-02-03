@@ -100,7 +100,7 @@ const createCourse = async (req, res, next) => {
 
     console.log("FILESSSS:");
 
-    const { title, category, teacherName } = req.body;
+    const { title, description, category, teacherName } = req.body;
     const rating = req.body.rating !== undefined ? Number(req.body.rating) : 0;
     const price = Number(req.body.price);
 
@@ -108,6 +108,7 @@ const createCourse = async (req, res, next) => {
 
     const payload = {
       title,
+      description,
       category,
       teacherName,
       rating,
@@ -133,6 +134,7 @@ const getCourses = async (req, res, next) => {
     const mapped = courses.map((c) => ({
       _id: c._id,
       title: c.title,
+      description: c.description,
       category: c.category,
       teacherName: c.teacherName,
       rating: c.rating,
@@ -163,6 +165,7 @@ const getCourseById = async (req, res, next) => {
     const result = {
       _id: course._id,
       title: course.title,
+      description: course.description,
       category: course.category,
       teacherName: course.teacherName,
       rating: course.rating,
