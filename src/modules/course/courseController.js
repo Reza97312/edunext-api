@@ -132,7 +132,6 @@ const makeFullImageUrl = (req, imgPath) => {
     return imgPath;
   }
 
-  // اگر لینک هنوز مربوط به هاست شخصی (Render) است
   const baseUrl = `${req.protocol}://${req.get("host")}`;
   const cleanPath = imgPath.startsWith("/") ? imgPath : `/${imgPath}`;
   return baseUrl + cleanPath;
