@@ -87,12 +87,10 @@ const createCourse = async (req, res, next) => {
       : null;
 
     if (!courseImagePath || !teacherImagePath || !courseVideoPath) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "All files (Image, Teacher Image, Video) are required",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "All files (Image, Teacher Image, Video) are required",
+      });
     }
 
     const { title, description, category, teacherName, rating, price } =
@@ -106,7 +104,7 @@ const createCourse = async (req, res, next) => {
       teacherName,
       rating: Number(rating) || 0,
       price: Number(price) || 0,
-      courseImage: courseImagePath, // این دیگه خودش https://res.cloudinary... هست
+      courseImage: courseImagePath,
       teacherImage: teacherImagePath,
       courseVideo: courseVideoPath,
       createdBy,
