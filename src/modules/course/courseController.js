@@ -9,12 +9,71 @@ const makeFullImageUrl = (req, imgPath) => {
   }
   const baseUrl = `${req.protocol}://${req.get("host")}`;
 
-  return baseUrl + (imgPath.startsWith("/") ? imgPath : `/${imgPath}`);
+  const cleanPath = imgPath.startsWith("/") ? imgPath : `/${imgPath}`;
+  return baseUrl + cleanPath;
 };
+
+// const createCourse = async (req, res, next) => {
+//   try {
+//     const files = req.files || {};
+//     if (!files.courseImage || !files.courseImage[0]) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "Course image is required" });
+//     }
+//     if (!files.teacherImage || !files.teacherImage[0]) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "Teacher image is required" });
+//     }
+//     const videoFile = files.courseVideo && files.courseVideo[0];
+//     let courseVideoUrl = null;
+//     if (videoFile) {
+//       const filename = path.basename(videoFile.path);
+//       courseVideoUrl = `/uploads/${filename}`;
+//     }
+
+//     const courseVideoPath = `/${files.courseVideo[0].path.replace(/\\/g, "/")}`;
+//     const courseImagePath = `/${files.courseImage[0].path.replace(/\\/g, "/")}`;
+//     const teacherImagePath = `/${files.teacherImage[0].path.replace(
+//       /\\/g,
+//       "/",
+//     )}`;
+
+//     console.log("FILESSSS:");
+
+//     const { title, description, category, teacherName } = req.body;
+//     const rating = req.body.rating !== undefined ? Number(req.body.rating) : 0;
+//     const price = Number(req.body.price);
+
+//     const createdBy = req.user ? req.user._id : undefined;
+
+//     const payload = {
+//       title,
+//       description,
+//       category,
+//       teacherName,
+//       rating,
+//       price,
+//       courseImage: courseImagePath,
+//       teacherImage: teacherImagePath,
+//       courseVideo: courseVideoPath,
+//       createdBy,
+//     };
+
+//     const course = await courseService.createCourse(payload);
+
+//     res.status(201).json({ success: true, data: course });
+//   } catch (err) {
+//     next(err);
+//   }
+// };
 
 const createCourse = async (req, res, next) => {
   try {
     const files = req.files || {};
+
+    // ولیدیشن وجود فایل‌ها
     if (!files.courseImage || !files.courseImage[0]) {
       return res
         .status(400)
@@ -25,21 +84,21 @@ const createCourse = async (req, res, next) => {
         .status(400)
         .json({ success: false, message: "Teacher image is required" });
     }
-    const videoFile = files.courseVideo && files.courseVideo[0];
-    let courseVideoUrl = null;
-    if (videoFile) {
-      const filename = path.basename(videoFile.path);
-      courseVideoUrl = `/uploads/${filename}`;
+
+    const courseImagePath = `/uploads/${files.courseImage[0].filename}`;
+    const teacherImagePath = `/uploads/${files.teacherImage[0].filename}`;
+
+    let courseVideoPath = null;
+    if (files.courseVideo && files.courseVideo[0]) {
+      courseVideoPath = `/uploads/${files.courseVideo[0].filename}`;
     }
+    // ---------------------------
 
-    const courseVideoPath = `/${files.courseVideo[0].path.replace(/\\/g, "/")}`;
-    const courseImagePath = `/${files.courseImage[0].path.replace(/\\/g, "/")}`;
-    const teacherImagePath = `/${files.teacherImage[0].path.replace(
-      /\\/g,
-      "/",
-    )}`;
-
-    console.log("FILESSSS:");
+    console.log("FILES SAVED AS:", {
+      courseImagePath,
+      teacherImagePath,
+      courseVideoPath,
+    });
 
     const { title, description, category, teacherName } = req.body;
     const rating = req.body.rating !== undefined ? Number(req.body.rating) : 0;

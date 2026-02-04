@@ -20,13 +20,6 @@ const storage = multer.diskStorage({
   },
 });
 
-// const fileFilter = (req, file, cb) => {
-//   if (!file.mimetype.startsWith("image/")) {
-//     cb(new Error("Only image files are allowed!"), false);
-//   } else {
-//     cb(null, true);
-//   }
-// };
 const fileFilter = (req, file, cb) => {
   if (file.fieldname === "courseImage" || file.fieldname === "teacherImage") {
     if (!file.mimetype.startsWith("image/")) {
