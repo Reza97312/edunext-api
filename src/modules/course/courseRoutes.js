@@ -3,22 +3,22 @@ const express = require("express");
 const router = express.Router();
 const path = require("path");
 const multer = require("multer");
-const { UPLOADS_DIR } = require("../../config/uploadConfig");
+const { storage } = require("../../config/uploadConfig");
 const { protect } = require("../../middlewares/authMiddleware");
 
 const courseController = require("./courseController");
 const { validateCreateCourse } = require("./courseValidation");
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, UPLOADS_DIR);
-  },
-  filename: function (req, file, cb) {
-    const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
-    cb(null, `${file.fieldname}-${unique}${ext}`);
-  },
-});
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, UPLOADS_DIR);
+//   },
+//   filename: function (req, file, cb) {
+//     const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
+//     const ext = path.extname(file.originalname);
+//     cb(null, `${file.fieldname}-${unique}${ext}`);
+//   },
+// });
 
 const fileFilter = (req, file, cb) => {
   if (file.fieldname === "courseImage" || file.fieldname === "teacherImage") {
@@ -38,7 +38,7 @@ const fileFilter = (req, file, cb) => {
   cb(new Error("Invalid file field"), false);
 };
 
-const upload = multer({ storage, fileFilter });
+const upload = multer({ storage: storage });
 
 router.post(
   "/",
