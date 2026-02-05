@@ -1,50 +1,3 @@
-// console.log("🔥 APP.JS LOADED");
-
-// const express = require("express");
-// const cors = require("cors");
-// const helmet = require("helmet");
-// const errorHandler = require("./middlewares/errorMiddleware");
-// const { globalLimiter } = require("./middlewares/rateLimitMiddleware");
-// const swaggerUi = require("swagger-ui-express");
-// const specs = require("./config/swagger");
-// const authRoutes = require("./modules/auth/authRoutes");
-// const path = require("path");
-// const courseRoutes = require("./modules/course/courseRoutes");
-// const { UPLOADS_DIR } = require("./config/uploadConfig");
-
-// const app = express();
-// app.set("trust proxy", 1);
-
-// app.use(
-//   helmet({
-//     contentSecurityPolicy: false,
-//   }),
-// );
-
-// app.use(globalLimiter);
-// app.use(express.json());
-// app.use(
-//   cors({
-//     origin: ["http://localhost:3000", "https://your-frontend-domain.com"],
-//     credentials: true,
-//   }),
-// );
-// app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
-// app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
-// app.use("/uploads", express.static(UPLOADS_DIR));
-// app.use("/api/courses", courseRoutes);
-
-// app.use("/api/auth", authRoutes);
-
-// app.get("/health", (req, res) => {
-//   res.status(200).json({ status: "OK", message: "AuthX API is running" });
-// });
-
-// app.use(errorHandler);
-
-// module.exports = app;
-console.log("🔥 APP.JS LOADED");
-
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
@@ -55,6 +8,7 @@ const specs = require("./config/swagger");
 const authRoutes = require("./modules/auth/authRoutes");
 const path = require("path");
 const courseRoutes = require("./modules/course/courseRoutes");
+const commentRoutes = require("./modules/courseComment/commentRoutes");
 
 const app = express();
 
@@ -79,6 +33,7 @@ app.use(
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.use("/api/courses", courseRoutes);
+app.use("/api/comments", commentRoutes);
 app.use("/api/auth", authRoutes);
 
 app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
