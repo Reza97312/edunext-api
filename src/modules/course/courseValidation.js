@@ -20,6 +20,15 @@ const createSchema = Joi.object({
   }),
 });
 
+const updateSchema = Joi.object({
+  title: Joi.string().min(1).optional(),
+  category: Joi.string().min(1).optional(),
+  teacherName: Joi.string().min(1).optional(),
+  rating: Joi.number().min(0).max(5).optional(),
+  price: Joi.number().min(0).optional(),
+  description: Joi.string().min(10).optional(),
+}).min(1);
+
 const validate = (schema) => (req, res, next) => {
   const { error } = schema.validate(req.body, { abortEarly: false });
   if (error) {
@@ -33,4 +42,5 @@ const validate = (schema) => (req, res, next) => {
 
 module.exports = {
   validateCreateCourse: validate(createSchema),
+  validateUpdateCourse: validate(updateSchema),
 };
