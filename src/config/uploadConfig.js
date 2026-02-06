@@ -1,8 +1,6 @@
 const cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
-
-console.log("Cloud Name:", process.env.CLOUDINARY_CLOUD_NAME);
-console.log("API Key exist?:", !!process.env.CLOUDINARY_API_KEY);
+const multer = require("multer");
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -16,7 +14,13 @@ const storage = new CloudinaryStorage({
     let folderName = "edunext/others";
     let resourceType = "auto";
 
-    if (file.fieldname === "courseImage" || file.fieldname === "teacherImage") {
+    if (file.fieldname === "profileImage") {
+      folderName = "edunext/users";
+      resourceType = "image";
+    } else if (
+      file.fieldname === "courseImage" ||
+      file.fieldname === "teacherImage"
+    ) {
       folderName = "edunext/images";
       resourceType = "image";
     } else if (file.fieldname === "courseVideo") {
@@ -32,4 +36,6 @@ const storage = new CloudinaryStorage({
   },
 });
 
-module.exports = { storage, cloudinary };
+const upload = multer({ storage: storage });
+
+module.exports = { upload, cloudinary };

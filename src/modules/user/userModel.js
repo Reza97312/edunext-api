@@ -20,6 +20,14 @@ const userSchema = new mongoose.Schema(
       required: true,
       select: false,
     },
+    profileImage: {
+      type: String,
+      default: null,
+    },
+    profileImagePublicId: {
+      type: String,
+      default: null,
+    },
     role: {
       type: String,
       enum: ["user", "admin", "moderator"],
@@ -32,7 +40,7 @@ const userSchema = new mongoose.Schema(
     passwordResetToken: String,
     passwordResetExpires: Date,
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 module.exports = mongoose.model("User", userSchema);

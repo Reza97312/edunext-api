@@ -9,6 +9,7 @@ const authRoutes = require("./modules/auth/authRoutes");
 const path = require("path");
 const courseRoutes = require("./modules/course/courseRoutes");
 const commentRoutes = require("./modules/courseComment/commentRoutes");
+const userPanelRoutes = require("./modules/userPanel/userPanelRoutes");
 
 const app = express();
 
@@ -35,7 +36,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.use("/api/courses", courseRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/auth", authRoutes);
-
+app.use("/api/user-panel", userPanelRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
 
 app.get("/health", (req, res) => {
