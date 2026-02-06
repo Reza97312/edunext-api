@@ -34,7 +34,6 @@ const uploadAvatar = async (req, res, next) => {
       return res.status(400).json({ message: "Please upload an image file" });
     }
 
-    // req.file حاوی اطلاعات فایل آپلود شده در کلادینری است
     const updatedUser = await userPanelService.updateProfileImage(
       req.user._id,
       req.file,
