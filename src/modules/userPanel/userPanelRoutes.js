@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const userPanelController = require("./userPanelController");
-const protect = require("../../middlewares/authMiddleware");
+const { protect } = require("../../middlewares/authMiddleware");
 const { upload } = require("../../config/uploadConfig");
 // const { updateProfileValidator } = require("./userPanelValidation");
 
