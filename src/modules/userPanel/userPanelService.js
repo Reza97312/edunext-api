@@ -1,5 +1,6 @@
 const userPanelRepository = require("./userPanelRepository");
 const { deleteFromCloudinary } = require("../../utils/cloudinaryUtils");
+const User = require("../user/userModel");
 
 const getProfile = async (userId) => {
   const user = await userPanelRepository.getUserProfile(userId);
