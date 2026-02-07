@@ -8,7 +8,15 @@ const getProfile = async (userId) => {
 };
 
 const updateProfileInfo = async (userId, data) => {
-  const { email, password, role, ...allowedUpdates } = data;
+  const { password, role, ...allowedUpdates } = data;
+
+  if (allowedUpdates.email) {
+    const existingUser = await User.findOne({ email: allowedUpdates.email });
+    if (existingUser && existingUser._id.toString() !== userId.toString()) {
+      throw new Error("Email already in use");
+    }
+  }
+
   const updatedUser = await userPanelRepository.updateUserProfile(
     userId,
     allowedUpdates,
