@@ -25,9 +25,16 @@ app.use(
 app.use(globalLimiter);
 app.use(express.json());
 
+// app.use(
+//   cors({
+//     origin: ["http://localhost:3000", "https://your-frontend-domain.com"],
+//     credentials: true,
+//   }),
+// );
+
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://your-frontend-domain.com"],
+    origin: true,
     credentials: true,
   }),
 );
