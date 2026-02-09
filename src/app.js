@@ -57,6 +57,17 @@ const corsOptions = {
   optionsSuccessStatus: 204,
 };
 
+app.use((req, res, next) => {
+  console.log(
+    "[REQ]",
+    req.method,
+    req.originalUrl,
+    "Origin:",
+    req.headers.origin || "<no-origin>",
+  );
+  next();
+});
+
 app.use(cors(corsOptions));
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
