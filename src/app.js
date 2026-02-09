@@ -59,8 +59,6 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-app.options("*", cors(corsOptions));
-
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.use("/api/courses", courseRoutes);
 app.use("/api/comments", commentRoutes);
