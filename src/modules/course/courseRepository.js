@@ -9,14 +9,14 @@ const createCourse = async (courseData) => {
 const getAllCourses = async () => {
   return await Course.find()
     .sort({ createdAt: -1 })
-    .populate("category", "name")
+    .populate("categories", "name")
     .populate("courseLevel", "name");
 };
 
 const getCourseById = async (id) => {
   if (!mongoose.Types.ObjectId.isValid(id)) return null;
   return await Course.findById(id)
-    .populate("category", "name")
+    .populate("categories", "name")
     .populate("courseLevel", "name");
 };
 
@@ -25,7 +25,7 @@ const updateCourse = async (id, updateData) => {
     new: true,
     runValidators: true,
   })
-    .populate("category", "name")
+    .populate("categories", "name")
     .populate("courseLevel", "name");
 };
 
