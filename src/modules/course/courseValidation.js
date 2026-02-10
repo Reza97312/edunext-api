@@ -4,8 +4,14 @@ const createSchema = Joi.object({
   title: Joi.string().min(1).required().messages({
     "string.empty": "Title is required",
   }),
-  category: Joi.string().min(1).required().messages({
-    "string.empty": "Category is required",
+  categories: Joi.alternatives()
+    .try(Joi.array().items(Joi.string().required()).min(1), Joi.string().min(1))
+    .required()
+    .messages({
+      "any.required": "At least one category is required",
+    }),
+  courseLevel: Joi.string().min(1).required().messages({
+    "string.empty": "Course level is required",
   }),
   teacherName: Joi.string().min(1).required().messages({
     "string.empty": "Teacher name is required",

@@ -1,4 +1,7 @@
 const courseService = require("./courseService");
+const mongoose = require("mongoose");
+const Category = require("../category/categoryModel");
+const CourseLevel = require("../courseLevel/courseLevelModel");
 
 const makeFullImageUrl = (req, imgPath) => {
   if (!imgPath) return imgPath;
@@ -10,6 +13,27 @@ const makeFullImageUrl = (req, imgPath) => {
   const baseUrl = `${req.protocol}://${req.get("host")}`;
   const cleanPath = imgPath.startsWith("/") ? imgPath : `/${imgPath}`;
   return baseUrl + cleanPath;
+};
+
+const normalizeCategoriesInput = (raw) => {
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw === "string") {
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+    } catch (e) {}
+
+    if (raw.includes(",")) {
+      return raw
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+    }
+
+    return [raw.trim()];
+  }
+  return [];
 };
 
 const createCourse = async (req, res, next) => {
@@ -37,10 +61,50 @@ const createCourse = async (req, res, next) => {
       req.body;
     const createdBy = req.user ? req.user._id : undefined;
 
+    const categories = normalizeCategoriesInput(rawCategories);
+
+    if (!categories || categories.length === 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "At least one category is required" });
+    }
+
+    for (const catId of categories) {
+      if (!mongoose.Types.ObjectId.isValid(catId)) {
+        return res
+          .status(400)
+          .json({ success: false, message: `Invalid category id: ${catId}` });
+      }
+      const found = await Category.findById(catId);
+      if (!found) {
+        return res
+          .status(400)
+          .json({ success: false, message: `Category not found: ${catId}` });
+      }
+    }
+
+    if (!courseLevel) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Course level is required" });
+    }
+    if (!mongoose.Types.ObjectId.isValid(courseLevel)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid course level id" });
+    }
+    const foundLevel = await CourseLevel.findById(courseLevel);
+    if (!foundLevel) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Course level not found" });
+    }
+
     const payload = {
       title,
       description,
-      category,
+      categories,
+      courseLevel,
       teacherName,
       rating: Number(rating) || 0,
       price: Number(price) || 0,
@@ -51,21 +115,40 @@ const createCourse = async (req, res, next) => {
     };
 
     const course = await courseService.createCourse(payload);
-    res.status(201).json({ success: true, data: course });
+    const full = await courseService.getCourseById(course._id);
+    res.status(201).json({ success: true, data: full });
   } catch (err) {
     next(err);
   }
 };
 
+// const getCourses = async (req, res, next) => {
+//   try {
+//     const courses = await courseService.getAllCourses();
+
+//     const mapped = courses.map((c) => ({
+//       ...(c.toObject ? c.toObject() : c),
+//       courseImage: makeFullImageUrl(req, c.courseImage),
+//       teacherImage: makeFullImageUrl(req, c.teacherImage),
+//     }));
+//     res.status(200).json({ success: true, data: mapped });
+//   } catch (err) {
+//     next(err);
+//   }
+// };
+
 const getCourses = async (req, res, next) => {
   try {
     const courses = await courseService.getAllCourses();
 
-    const mapped = courses.map((c) => ({
-      ...(c.toObject ? c.toObject() : c),
-      courseImage: makeFullImageUrl(req, c.courseImage),
-      teacherImage: makeFullImageUrl(req, c.teacherImage),
-    }));
+    const mapped = courses.map((c) => {
+      const obj = c.toObject ? c.toObject() : c;
+      obj.courseImage = makeFullImageUrl(req, obj.courseImage);
+      obj.teacherImage = makeFullImageUrl(req, obj.teacherImage);
+      obj.courseVideo = makeFullImageUrl(req, obj.courseVideo);
+      return obj;
+    });
+
     res.status(200).json({ success: true, data: mapped });
   } catch (err) {
     next(err);

@@ -16,10 +16,16 @@ const courseSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    category: {
-      type: String,
+    categories: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Category",
+      },
+    ],
+    courseLevel: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "CourseLevel",
       required: true,
-      trim: true,
     },
     teacherName: {
       type: String,

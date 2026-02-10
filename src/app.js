@@ -10,6 +10,8 @@ const path = require("path");
 const courseRoutes = require("./modules/course/courseRoutes");
 const commentRoutes = require("./modules/courseComment/commentRoutes");
 const userPanelRoutes = require("./modules/userPanel/userPanelRoutes");
+const categoryRoutes = require("./modules/category/categoryRoutes");
+const courseLevelRoutes = require("./modules/courseLevel/courseLevelRoutes");
 
 const app = express();
 
@@ -75,6 +77,8 @@ app.use("/api/courses", courseRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/user-panel", userPanelRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/course-levels", courseLevelRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
 
 app.get("/health", (req, res) => {
