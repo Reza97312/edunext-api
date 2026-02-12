@@ -56,7 +56,7 @@ const createCourse = async (req, res, next) => {
         message: "All files (Image, Teacher Image, Video) are required",
       });
     }
-
+    console.log(req.files);
     const { title, description, category, teacherName, rating, price } =
       req.body;
     const createdBy = req.user ? req.user._id : undefined;
