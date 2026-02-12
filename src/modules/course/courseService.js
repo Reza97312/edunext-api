@@ -4,8 +4,8 @@ const createCourse = async (data) => {
   return await courseRepository.createCourse(data);
 };
 
-const getAllCourses = async () => {
-  return await courseRepository.getAllCourses();
+const getAllCourses = async (filter = {}, options = {}) => {
+  return await courseRepository.getAllCourses(filter, options);
 };
 const getCourseById = async (id) => {
   return await courseRepository.getCourseById(id);

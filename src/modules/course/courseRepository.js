@@ -6,11 +6,37 @@ const createCourse = async (courseData) => {
   return await course.save();
 };
 
-const getAllCourses = async () => {
-  return await Course.find()
-    .sort({ createdAt: -1 })
+const getAllCourses = async (filter = {}, options = {}) => {
+  const page = Math.max(1, Number(options.page) || 1);
+  const limit = Math.max(1, Number(options.limit) || 10);
+  const skip = (page - 1) * limit;
+
+  let sortObj = { createdAt: -1 };
+  if (options.sort === "oldest") sortObj = { createdAt: 1 };
+  if (options.sort === "latest") sortObj = { createdAt: -1 };
+
+  const query = Course.find(filter)
+    .sort(sortObj)
+    .skip(skip)
+    .limit(limit)
     .populate("categories", "name")
     .populate("courseLevel", "name");
+
+  const [data, total] = await Promise.all([
+    query.exec(),
+    Course.countDocuments(filter),
+  ]);
+  const pages = Math.ceil(total / limit) || 1;
+
+  return {
+    data,
+    meta: {
+      total,
+      page,
+      pages,
+      limit,
+    },
+  };
 };
 
 const getCourseById = async (id) => {
