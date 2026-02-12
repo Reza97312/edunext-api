@@ -241,7 +241,7 @@ const createCourse = async (req, res, next) => {
 
 const getCourses = async (req, res, next) => {
   try {
-    const { categories, courseLevel, search, price, sort, page, limit } =
+    const { categories, courseLevel, search, price, sort, page, limit, match } =
       req.query;
 
     const filters = {};
