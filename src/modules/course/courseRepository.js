@@ -6,12 +6,13 @@ const createCourse = async (courseData) => {
   return await course.save();
 };
 
-const getAllCourses = async (filter = {}, options = {}) => {
+const getAllCourses = async (filters = {}, options = {}) => {
   const page = Math.max(1, Number(options.page) || 1);
   const limit = Math.max(1, Number(options.limit) || 10);
   const skip = (page - 1) * limit;
 
   let sortObj = { createdAt: -1 };
+
   switch (options.sort) {
     case "oldest":
       sortObj = { createdAt: 1 };
@@ -27,7 +28,7 @@ const getAllCourses = async (filter = {}, options = {}) => {
       sortObj = { createdAt: -1 };
   }
 
-  const query = Course.find(filter)
+  const query = Course.find(filters)
     .sort(sortObj)
     .skip(skip)
     .limit(limit)
@@ -36,8 +37,9 @@ const getAllCourses = async (filter = {}, options = {}) => {
 
   const [data, total] = await Promise.all([
     query.exec(),
-    Course.countDocuments(filter),
+    Course.countDocuments(filters),
   ]);
+
   const pages = Math.ceil(total / limit) || 1;
 
   return {
