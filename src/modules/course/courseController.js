@@ -129,38 +129,38 @@ const createCourse = async (req, res, next) => {
   }
 };
 
-// const getCourses = async (req, res, next) => {
-//   try {
-//     const courses = await courseService.getAllCourses();
-
-//     const mapped = courses.map((c) => ({
-//       ...(c.toObject ? c.toObject() : c),
-//       courseImage: makeFullImageUrl(req, c.courseImage),
-//       teacherImage: makeFullImageUrl(req, c.teacherImage),
-//     }));
-//     res.status(200).json({ success: true, data: mapped });
-//   } catch (err) {
-//     next(err);
-//   }
-// };
-
 const getCourses = async (req, res, next) => {
   try {
     const courses = await courseService.getAllCourses();
 
-    const mapped = courses.map((c) => {
-      const obj = c.toObject ? c.toObject() : c;
-      obj.courseImage = makeFullImageUrl(req, obj.courseImage);
-      obj.teacherImage = makeFullImageUrl(req, obj.teacherImage);
-      obj.courseVideo = makeFullImageUrl(req, obj.courseVideo);
-      return obj;
-    });
-
+    const mapped = courses.map((c) => ({
+      ...(c.toObject ? c.toObject() : c),
+      courseImage: makeFullImageUrl(req, c.courseImage),
+      teacherImage: makeFullImageUrl(req, c.teacherImage),
+    }));
     res.status(200).json({ success: true, data: mapped });
   } catch (err) {
     next(err);
   }
 };
+
+// const getCourses = async (req, res, next) => {
+//   try {
+//     const courses = await courseService.getAllCourses();
+
+//     const mapped = courses.map((c) => {
+//       const obj = c.toObject ? c.toObject() : c;
+//       obj.courseImage = makeFullImageUrl(req, obj.courseImage);
+//       obj.teacherImage = makeFullImageUrl(req, obj.teacherImage);
+//       obj.courseVideo = makeFullImageUrl(req, obj.courseVideo);
+//       return obj;
+//     });
+
+//     res.status(200).json({ success: true, data: mapped });
+//   } catch (err) {
+//     next(err);
+//   }
+// };
 
 const getCourseById = async (req, res, next) => {
   try {
