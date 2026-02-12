@@ -40,7 +40,7 @@ const getAllCourses = async (filters = {}, options = {}) => {
     Course.countDocuments(filters),
   ]);
 
-  const pages = Math.ceil(total / limit) || 1;
+  const pages = Math.max(1, Math.ceil(total / limit));
 
   return {
     data,

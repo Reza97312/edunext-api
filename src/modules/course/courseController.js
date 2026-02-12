@@ -241,21 +241,51 @@ const createCourse = async (req, res, next) => {
 
 const getCourses = async (req, res, next) => {
   try {
-    const { categories, courseLevel, search, sort, page, limit } = req.query;
+    const { categories, courseLevel, search, price, sort, page, limit } =
+      req.query;
 
     const filters = {};
 
     if (categories) {
-      const cats = categories.split(",");
+      const cats = Array.isArray(categories)
+        ? categories
+        : categories
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean);
+
+      for (const c of cats) {
+        if (!mongoose.Types.ObjectId.isValid(c)) {
+          return res
+            .status(400)
+            .json({ success: false, message: `Invalid category id: ${c}` });
+        }
+      }
+
       filters.categories = { $in: cats };
     }
 
     if (courseLevel) {
+      if (!mongoose.Types.ObjectId.isValid(courseLevel)) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid courseLevel id: ${courseLevel}`,
+        });
+      }
       filters.courseLevel = courseLevel;
     }
 
-    if (search) {
-      filters.title = { $regex: search, $options: "i" };
+    if (search && typeof search === "string" && search.trim().length > 0) {
+      const safe = escapeRegex(search.trim());
+      filters.title = { $regex: safe, $options: "i" };
+    }
+
+    if (price === "free") {
+      filters.price = 0;
+    }
+
+    if (price === "paid") {
+      filters.price = { $gt: 0 };
     }
 
     const result = await courseService.getAllCourses(filters, {
