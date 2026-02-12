@@ -12,8 +12,20 @@ const getAllCourses = async (filter = {}, options = {}) => {
   const skip = (page - 1) * limit;
 
   let sortObj = { createdAt: -1 };
-  if (options.sort === "oldest") sortObj = { createdAt: 1 };
-  if (options.sort === "latest") sortObj = { createdAt: -1 };
+  switch (options.sort) {
+    case "oldest":
+      sortObj = { createdAt: 1 };
+      break;
+    case "price_asc":
+      sortObj = { price: 1 };
+      break;
+    case "price_desc":
+      sortObj = { price: -1 };
+      break;
+    case "latest":
+    default:
+      sortObj = { createdAt: -1 };
+  }
 
   const query = Course.find(filter)
     .sort(sortObj)

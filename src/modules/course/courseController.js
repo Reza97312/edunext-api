@@ -15,6 +15,10 @@ const makeFullImageUrl = (req, imgPath) => {
   return baseUrl + cleanPath;
 };
 
+const escapeRegex = (text) => {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+};
+
 const normalizeCategoriesInput = (raw) => {
   if (!raw) return [];
   if (Array.isArray(raw)) return raw;
@@ -146,7 +150,16 @@ const createCourse = async (req, res, next) => {
 
 const getCourses = async (req, res, next) => {
   try {
-    const { categories, courseLevel, page = 1, limit = 10, sort } = req.query;
+    const {
+      categories,
+      courseLevel,
+      page = 1,
+      limit = 10,
+      sort,
+      search,
+      minPrice,
+      maxPrice,
+    } = req.query;
 
     const filter = {};
 
@@ -155,16 +168,13 @@ const getCourses = async (req, res, next) => {
       if (Array.isArray(categories)) {
         cats = categories;
       } else if (typeof categories === "string") {
-        if (categories.includes(",")) {
-          cats = categories
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean);
-        } else {
-          cats = [categories.trim()];
-        }
+        cats = categories.includes(",")
+          ? categories
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : [categories.trim()];
       }
-
       for (const c of cats) {
         if (!mongoose.Types.ObjectId.isValid(c)) {
           return res
@@ -172,18 +182,36 @@ const getCourses = async (req, res, next) => {
             .json({ success: false, message: `Invalid category id: ${c}` });
         }
       }
-
       filter.categories = { $in: cats };
     }
 
     if (courseLevel) {
       if (!mongoose.Types.ObjectId.isValid(courseLevel)) {
-        return res.status(400).json({
-          success: false,
-          message: `Invalid courseLevel id: ${courseLevel}`,
-        });
+        return res
+          .status(400)
+          .json({
+            success: false,
+            message: `Invalid courseLevel id: ${courseLevel}`,
+          });
       }
       filter.courseLevel = courseLevel;
+    }
+
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      filter.price = {};
+      if (minPrice !== undefined && !Number.isNaN(Number(minPrice))) {
+        filter.price.$gte = Number(minPrice);
+      }
+      if (maxPrice !== undefined && !Number.isNaN(Number(maxPrice))) {
+        filter.price.$lte = Number(maxPrice);
+      }
+
+      if (Object.keys(filter.price).length === 0) delete filter.price;
+    }
+
+    if (search && typeof search === "string" && search.trim().length > 0) {
+      const safe = escapeRegex(search.trim());
+      filter.title = { $regex: safe, $options: "i" };
     }
 
     const options = {
@@ -191,6 +219,7 @@ const getCourses = async (req, res, next) => {
       limit: Number(limit) || 10,
       sort,
     };
+
     const { data: courses, meta } = await courseService.getAllCourses(
       filter,
       options,
