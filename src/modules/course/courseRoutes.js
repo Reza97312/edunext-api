@@ -1,9 +1,8 @@
-console.log("🔥 COURSE ROUTES LOADEDwww");
 const express = require("express");
 const router = express.Router();
-const path = require("path");
-const multer = require("multer");
-const { storage } = require("../../config/uploadConfig");
+// const path = require("path");
+const { upload } = require("../../config/uploadConfig");
+// const { storage } = require("../../config/uploadConfig");
 const { protect } = require("../../middlewares/authMiddleware");
 
 const courseController = require("./courseController");
@@ -30,7 +29,7 @@ const fileFilter = (req, file, cb) => {
   cb(new Error("Invalid file field"), false);
 };
 
-const upload = multer({ storage: storage });
+// const upload = multer({ storage: storage });
 
 router.post(
   "/",
