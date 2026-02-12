@@ -57,8 +57,15 @@ const createCourse = async (req, res, next) => {
       });
     }
     console.log(req.files);
-    const { title, description, category, teacherName, rating, price } =
-      req.body;
+    const {
+      title,
+      description,
+      categories: rawCategories,
+      courseLevel,
+      teacherName,
+      rating,
+      price,
+    } = req.body;
     const createdBy = req.user ? req.user._id : undefined;
 
     const categories = normalizeCategoriesInput(rawCategories);
