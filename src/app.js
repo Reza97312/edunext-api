@@ -15,7 +15,7 @@ const courseLevelRoutes = require("./modules/courseLevel/courseLevelRoutes");
 
 const app = express();
 
-app.set("trust proxy", 1);
+// app.set("trust proxy", 1);
 
 // app.use(
 //   helmet({
@@ -34,43 +34,43 @@ app.use(express.json());
 //   }),
 // );
 
-const allowedOrigins = [
-  process.env.CLIENT_URL,
-  "http://localhost:3000",
-  "http://127.0.0.1:3000",
-  "http://192.168.1.105:3000",
-].filter(Boolean);
+// const allowedOrigins = [
+//   process.env.CLIENT_URL,
+//   "http://localhost:3000",
+//   "http://127.0.0.1:3000",
+//   "http://192.168.1.105:3000",
+// ].filter(Boolean);
 
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) !== -1) return callback(null, true);
-    return callback(new Error("Not allowed by CORS"));
-  },
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: [
-    "Content-Type",
-    "Authorization",
-    "X-Requested-With",
-    "Accept",
-    "Origin",
-  ],
-  optionsSuccessStatus: 204,
-};
+// const corsOptions = {
+//   origin: function (origin, callback) {
+//     if (!origin) return callback(null, true);
+//     if (allowedOrigins.indexOf(origin) !== -1) return callback(null, true);
+//     return callback(new Error("Not allowed by CORS"));
+//   },
+//   credentials: true,
+//   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+//   allowedHeaders: [
+//     "Content-Type",
+//     "Authorization",
+//     "X-Requested-With",
+//     "Accept",
+//     "Origin",
+//   ],
+//   optionsSuccessStatus: 204,
+// };
 
-app.use((req, res, next) => {
-  console.log(
-    "[REQ]",
-    req.method,
-    req.originalUrl,
-    "Origin:",
-    req.headers.origin || "<no-origin>",
-  );
-  next();
-});
+// app.use((req, res, next) => {
+//   console.log(
+//     "[REQ]",
+//     req.method,
+//     req.originalUrl,
+//     "Origin:",
+//     req.headers.origin || "<no-origin>",
+//   );
+//   next();
+// });
 
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.use("/api/courses", courseRoutes);
