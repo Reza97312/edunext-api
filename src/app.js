@@ -17,8 +17,8 @@ const app = express();
 
 app.set("trust proxy", 1);
 
-app.use(require("cors")({ origin: true, credentials: true }));
-app.options("*", require("cors")({ origin: true, credentials: true }));
+app.use(cors({ origin: true, credentials: true }));
+app.options(/.*/, cors({ origin: true, credentials: true }));
 
 // app.use(
 //   helmet({
