@@ -17,15 +17,49 @@ const app = express();
 
 app.set("trust proxy", 1);
 
-app.use(cors({ origin: true, credentials: true }));
-app.options(/.*/, cors({ origin: true, credentials: true }));
+// app.use(cors({ origin: true, credentials: true }));
+// app.options(/.*/, cors({ origin: true, credentials: true }));
 
-// app.use(
-//   helmet({
-//     contentSecurityPolicy: false,
-//     crossOriginResourcePolicy: { policy: "cross-origin" },
-//   }),
-// );
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+  "http://192.168.1.105:3000",
+].filter(Boolean);
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error("Not allowed by CORS"));
+  },
+
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "X-Requested-With",
+    "Accept",
+    "Origin",
+  ],
+  optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
+
+app.options(/.*/, cors(corsOptions));
+
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  }),
+);
 
 app.use(globalLimiter);
 app.use(express.json());
