@@ -12,13 +12,11 @@ const commentRoutes = require("./modules/courseComment/commentRoutes");
 const userPanelRoutes = require("./modules/userPanel/userPanelRoutes");
 const categoryRoutes = require("./modules/category/categoryRoutes");
 const courseLevelRoutes = require("./modules/courseLevel/courseLevelRoutes");
+const replyRoutes = require("./modules/courseCommentReply/courseCommentReplyRoutes");
 
 const app = express();
 
 app.set("trust proxy", 1);
-
-// app.use(cors({ origin: true, credentials: true }));
-// app.options(/.*/, cors({ origin: true, credentials: true }));
 
 const allowedOrigins = [
   process.env.CLIENT_URL,
@@ -67,6 +65,7 @@ app.use(express.json());
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.use("/api/courses", courseRoutes);
 app.use("/api/comments", commentRoutes);
+app.use("/api/replies", replyRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/user-panel", userPanelRoutes);
 app.use("/api/categories", categoryRoutes);
