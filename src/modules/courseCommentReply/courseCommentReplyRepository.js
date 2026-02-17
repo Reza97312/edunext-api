@@ -1,4 +1,4 @@
-const Reply = require("./replyModel");
+const Reply = require("./courseCommentReplyModel");
 
 const create = async (data) => {
   return await Reply.create(data);

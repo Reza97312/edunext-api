@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const replyController = require("./replyController");
+const replyController = require("./courseCommentReplyController");
 const { protect } = require("../../middlewares/authMiddleware");
-const { validateCreateReply } = require("./replyValidation");
+const { validateCreateReply } = require("./courseCommentReplyValidation");
 
 router.post(
   "/:commentId",

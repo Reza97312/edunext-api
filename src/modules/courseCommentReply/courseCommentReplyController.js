@@ -1,4 +1,4 @@
-const replyRepository = require("./replyRepository");
+const replyRepository = require("./courseCommentReplyRepository");
 const mongoose = require("mongoose");
 const Comment = require("../courseComment/commentModel");
 
