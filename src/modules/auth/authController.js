@@ -32,7 +32,7 @@ const forgotPassword = async (req, res, next) => {
     const token = await authService.forgotPassword(email);
     res.status(200).json({
       success: true,
-      message: "Reset token generated (check console)",
+      message: "Reset token generated",
       token,
     });
   } catch (error) {

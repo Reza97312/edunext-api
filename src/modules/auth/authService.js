@@ -56,7 +56,7 @@ const login = async (email, password) => {
 const forgotPassword = async (email) => {
   const user = await authRepository.findUserByEmail(email);
   await user.save();
-  console.log("DEBUG - User saved in DB with token:", user.passwordResetToken);
+
   if (!user) {
     throw new Error("User with this email does not exist");
   }
