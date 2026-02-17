@@ -39,7 +39,7 @@ const createReply = async (req, res, next) => {
     const populated = await reply.populate("user", "name avatar");
 
     const user = populated.user || {};
-    const avatarFull = makeFullImageUrl(req, user.avatar);
+    const avatarFull = makeFullImageUrl(req, user.profileImage);
 
     const result = {
       _id: populated._id,
@@ -49,7 +49,7 @@ const createReply = async (req, res, next) => {
       user: {
         _id: user._id,
         name: user.name,
-        avatar: avatarFull,
+        profileImage: avatarFull,
       },
     };
 
@@ -89,7 +89,7 @@ const getRepliesByCommentId = async (req, res, next) => {
         user: {
           _id: user._id,
           name: user.name,
-          avatar: makeFullImageUrl(req, user.avatar),
+          profileImage: makeFullImageUrl(req, user.profileImage),
         },
       };
     });
