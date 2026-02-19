@@ -86,6 +86,13 @@ class WishlistRepository {
 
     return result[0]?.total || 0;
   }
+
+  async removeById(id, userId) {
+    return await Wishlist.findOneAndDelete({
+      _id: id,
+      user: userId,
+    });
+  }
 }
 
 module.exports = new WishlistRepository();
