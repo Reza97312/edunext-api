@@ -1,7 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const { upload } = require("../../config/uploadConfig");
-const { protect } = require("../../middlewares/authMiddleware");
+const {
+  protect,
+  optionalProtect,
+} = require("../../middlewares/authMiddleware");
 
 const courseController = require("./courseController");
 const {
@@ -21,9 +24,9 @@ router.post(
   courseController.createCourse,
 );
 
-router.get("/", protect, courseController.getCourses);
+router.get("/", optionalProtect, courseController.getCourses);
 
-router.get("/:id", protect, courseController.getCourseById);
+router.get("/:id", optionalProtect, courseController.getCourseById);
 
 router.delete("/:id", protect, courseController.deleteCourse);
 

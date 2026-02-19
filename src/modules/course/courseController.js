@@ -134,8 +134,10 @@ const createCourse = async (req, res, next) => {
 };
 
 const getCourses = async (req, res, next) => {
+  const userId = req.user?._id || null;
+
   try {
-    const { categories, courseLevel, search, price, sort, page, limit, match } =
+    const { categories, courseLevel, search, price, sort, page, limit } =
       req.query;
 
     const filters = {};
@@ -189,7 +191,7 @@ const getCourses = async (req, res, next) => {
         page,
         limit,
       },
-      req.user?.id,
+      userId,
     );
 
     res.status(200).json({
@@ -202,9 +204,11 @@ const getCourses = async (req, res, next) => {
 };
 
 const getCourseById = async (req, res, next) => {
+  const userId = req.user?._id || null;
+
   try {
     const { id } = req.params;
-    const course = await courseService.getCourseById(id, req.user?.id);
+    const course = await courseService.getCourseById(id, userId);
 
     if (!course) {
       return res
