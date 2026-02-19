@@ -87,6 +87,17 @@ class WishlistRepository {
     return result[0]?.total || 0;
   }
 
+  async add(data) {
+    return await Wishlist.create(data);
+  }
+
+  async exists(userId, courseId) {
+    return await Wishlist.findOne({
+      user: userId,
+      course: courseId,
+    });
+  }
+
   async removeById(id, userId) {
     return await Wishlist.findOneAndDelete({
       _id: id,
