@@ -24,19 +24,18 @@ class WishlistService {
   async getMyWishlist(userId, query) {
     const page = parseInt(query.page) || 1;
     const limit = parseInt(query.limit) || 10;
-    const skip = (page - 1) * limit;
 
-    let sort = {};
-    if (query.sort === "highest") sort = { "course.price": -1 };
-    if (query.sort === "lowest") sort = { "course.price": 1 };
+    const search = query.search || "";
+    const sort = query.sort || "";
 
     const data = await wishlistRepository.findUserWishlist(userId, {
-      sort,
-      skip,
+      page,
       limit,
+      search,
+      sort,
     });
 
-    const total = await wishlistRepository.countUserWishlist(userId);
+    const total = await wishlistRepository.countUserWishlist(userId, search);
 
     return {
       total,
