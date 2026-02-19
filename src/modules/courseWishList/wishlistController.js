@@ -16,12 +16,15 @@ class WishlistController {
 
   async remove(req, res, next) {
     try {
-      await wishlistService.removeFromWishlist(
+      const result = await wishlistService.removeFromWishlist(
         req.user.id,
-        req.params.courseId,
+        req.params.wishlistId,
       );
 
-      res.json({ message: "Removed successfully" });
+      res.json({
+        message: "Removed successfully",
+        deleted: result,
+      });
     } catch (error) {
       next(error);
     }

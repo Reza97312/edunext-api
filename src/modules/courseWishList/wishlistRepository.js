@@ -5,23 +5,27 @@ class WishlistRepository {
     return await Wishlist.create(data);
   }
 
-  async remove(userId, courseId) {
+  async findById(id) {
+    return await Wishlist.findById(id);
+  }
+
+  async removeById(id, userId) {
     return await Wishlist.findOneAndDelete({
+      _id: id,
       user: userId,
-      course: courseId,
     });
   }
 
-  async findUserWishlist(userId, filter, options) {
-    return await Wishlist.find({ user: userId, ...filter })
+  async findUserWishlist(userId, options) {
+    return await Wishlist.find({ user: userId })
       .populate("course")
       .sort(options.sort)
       .skip(options.skip)
       .limit(options.limit);
   }
 
-  async countUserWishlist(userId, filter) {
-    return await Wishlist.countDocuments({ user: userId, ...filter });
+  async countUserWishlist(userId) {
+    return await Wishlist.countDocuments({ user: userId });
   }
 
   async exists(userId, courseId) {

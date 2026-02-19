@@ -5,7 +5,7 @@ const { protect } = require("../../middlewares/authMiddleware");
 
 router.post("/", protect, wishlistController.add);
 
-router.delete("/:courseId", protect, wishlistController.remove);
+router.delete("/:wishlistId", protect, wishlistController.remove);
 
 router.get("/my-courses", protect, wishlistController.myWishlist);
 

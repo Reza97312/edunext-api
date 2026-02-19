@@ -11,8 +11,14 @@ class WishlistService {
     });
   }
 
-  async removeFromWishlist(userId, courseId) {
-    return await wishlistRepository.remove(userId, courseId);
+  async removeFromWishlist(userId, wishlistId) {
+    const deleted = await wishlistRepository.removeById(wishlistId, userId);
+
+    if (!deleted) {
+      throw new Error("Wishlist item not found");
+    }
+
+    return deleted;
   }
 
   async getMyWishlist(userId, query) {
@@ -20,26 +26,17 @@ class WishlistService {
     const limit = parseInt(query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    const filter = {};
-
-    if (query.search) {
-      filter["course.title"] = {
-        $regex: query.search,
-        $options: "i",
-      };
-    }
-
     let sort = {};
     if (query.sort === "highest") sort = { "course.price": -1 };
     if (query.sort === "lowest") sort = { "course.price": 1 };
 
-    const data = await wishlistRepository.findUserWishlist(
-      userId,
-      {},
-      { sort, skip, limit },
-    );
+    const data = await wishlistRepository.findUserWishlist(userId, {
+      sort,
+      skip,
+      limit,
+    });
 
-    const total = await wishlistRepository.countUserWishlist(userId, {});
+    const total = await wishlistRepository.countUserWishlist(userId);
 
     return {
       total,
