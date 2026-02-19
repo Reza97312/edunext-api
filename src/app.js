@@ -13,6 +13,7 @@ const userPanelRoutes = require("./modules/userPanel/userPanelRoutes");
 const categoryRoutes = require("./modules/category/categoryRoutes");
 const courseLevelRoutes = require("./modules/courseLevel/courseLevelRoutes");
 const replyRoutes = require("./modules/courseCommentReply/courseCommentReplyRoutes");
+const wishlistRoutes = require("./modules/courseWishList/wishlistRoutes");
 
 const app = express();
 
@@ -70,6 +71,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/user-panel", userPanelRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/course-levels", courseLevelRoutes);
+app.use("/api/wishlist", wishlistRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
 
 app.get("/health", (req, res) => {
