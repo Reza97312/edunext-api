@@ -126,7 +126,7 @@ const createCourse = async (req, res, next) => {
     };
 
     const course = await courseService.createCourse(payload);
-    const full = await courseService.getCourseById(course._id);
+    const full = await courseService.getCourseById(course._id, req.user?.id);
     res.status(201).json({ success: true, data: full });
   } catch (err) {
     next(err);
@@ -182,11 +182,15 @@ const getCourses = async (req, res, next) => {
       filters.price = { $gt: 0 };
     }
 
-    const result = await courseService.getAllCourses(filters, {
-      sort,
-      page,
-      limit,
-    });
+    const result = await courseService.getAllCourses(
+      filters,
+      {
+        sort,
+        page,
+        limit,
+      },
+      req.user?.id,
+    );
 
     res.status(200).json({
       success: true,
@@ -200,7 +204,7 @@ const getCourses = async (req, res, next) => {
 const getCourseById = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const course = await courseService.getCourseById(id);
+    const course = await courseService.getCourseById(id, req.user?.id);
 
     if (!course) {
       return res
