@@ -21,9 +21,9 @@ router.post(
   courseController.createCourse,
 );
 
-router.get("/", courseController.getCourses);
+router.get("/", protect, courseController.getCourses);
 
-router.get("/:id", courseController.getCourseById);
+router.get("/:id", protect, courseController.getCourseById);
 
 router.delete("/:id", protect, courseController.deleteCourse);
 
