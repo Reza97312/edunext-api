@@ -51,6 +51,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    purchasedCourses: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Course",
+      },
+    ],
     role: {
       type: String,
       enum: ["user", "admin", "moderator"],
