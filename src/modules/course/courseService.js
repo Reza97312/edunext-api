@@ -5,13 +5,6 @@ const createCourse = async (data) => {
   return await courseRepository.createCourse(data);
 };
 
-// const getAllCourses = async (filters, sortOptions) => {
-//   return await courseRepository.getAllCourses(filters, sortOptions);
-// };
-// const getCourseById = async (id) => {
-//   return await courseRepository.getCourseById(id);
-// };
-
 const getAllCourses = async (filters, options = {}, userId) => {
   const result = await courseRepository.getAllCourses(filters, options);
   const courses = result.data || [];
