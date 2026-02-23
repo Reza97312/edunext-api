@@ -1,5 +1,6 @@
 const courseRepository = require("./courseRepository");
 const Wishlist = require("../courseWishList/wishlistModel");
+const User = require("../user/userModel");
 
 const createCourse = async (data) => {
   return await courseRepository.createCourse(data);
@@ -33,13 +34,30 @@ const getCourseById = async (id, userId) => {
   if (!course) return null;
 
   let isFavorite = false;
+  let isPurchased = false;
+
+  if (course.price === 0) {
+    isPurchased = true;
+  }
+
   if (userId) {
     const exists = await Wishlist.findOne({ user: userId, course: id }).lean();
     isFavorite = !!exists;
+
+    if (course.price > 0) {
+      const user = await User.findById(userId)
+        .select("purchasedCourses")
+        .lean();
+      if (user && user.purchasedCourses) {
+        isPurchased = user.purchasedCourses.some(
+          (purchasedCourseId) => purchasedCourseId.toString() === id.toString(),
+        );
+      }
+    }
   }
 
   const obj = course.toObject ? course.toObject() : course;
-  return { ...obj, isFavorite };
+  return { ...obj, isFavorite, isPurchased };
 };
 
 const updateCourse = async (id, updateData) => {
