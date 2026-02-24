@@ -68,10 +68,6 @@ const verifyPayment = async (authority, status) => {
       updatedUser.purchasedCourses,
     );
 
-    await User.findByIdAndUpdate(payment.user, {
-      $addToSet: { purchasedCourses: payment.course },
-    });
-
     return { success: true, refId: mockRefId, courseId: payment.course };
   } else {
     await paymentRepository.updatePaymentStatus(payment._id, {
