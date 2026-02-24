@@ -24,17 +24,24 @@ const requestPayment = async (req, res, next) => {
 
 // const verifyPayment = async (req, res, next) => {
 //   try {
-//     const { Authority, Status } = req.query;
+//     const { token, PayerID } = req.query;
 
-//     if (!Authority) {
+//     if (!token) {
 //       return res
 //         .status(400)
-//         .json({ success: false, message: "Invalid request parameters" });
+//         .json({ success: false, message: "Token is missing from PayPal" });
 //     }
 
-//     const result = await paymentService.verifyPayment(Authority, Status);
+//     const status = PayerID ? "OK" : "CANCELLED";
 
-//     res.status(200).json(result);
+//     const result = await paymentService.verifyPayment(token, status);
+//     const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
+
+//     if (result.success) {
+//       return res.redirect(`${clientUrl}/payment/success?ref=${result.refId}`);
+//     } else {
+//       return res.redirect(`${clientUrl}/payment/cancel`);
+//     }
 //   } catch (err) {
 //     next(err);
 //   }
@@ -47,21 +54,22 @@ const verifyPayment = async (req, res, next) => {
     if (!token) {
       return res
         .status(400)
-        .json({ success: false, message: "Token is missing from PayPal" });
+        .json({ success: false, message: "Token is missing" });
     }
 
-    const status = PayerID ? "OK" : "CANCELLED";
+    const result = await paymentService.verifyPayment(
+      token,
+      PayerID ? "OK" : "CANCELLED",
+    );
 
-    const result = await paymentService.verifyPayment(token, status);
-    const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
-
-    if (result.success) {
-      return res.redirect(`${clientUrl}/payment/success?ref=${result.refId}`);
-    } else {
-      return res.redirect(`${clientUrl}/payment/cancel`);
-    }
+    res.status(200).json({
+      message: "Test Result",
+      statusInDatabase: result.success ? "SUCCESSFUL PAY" : "FAILED PAY",
+      courseId: result.courseId,
+      refId: result.refId,
+    });
   } catch (err) {
-    next(err);
+    res.status(500).json({ success: false, message: err.message });
   }
 };
 
