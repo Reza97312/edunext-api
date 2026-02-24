@@ -29,6 +29,37 @@ const getAllCourses = async (filters, options = {}, userId) => {
   return { ...result, data };
 };
 
+// const getCourseById = async (id, userId) => {
+//   const course = await courseRepository.getCourseById(id);
+//   if (!course) return null;
+
+//   let isFavorite = false;
+//   let isPurchased = false;
+
+//   if (course.price === 0) {
+//     isPurchased = true;
+//   }
+
+//   if (userId) {
+//     const exists = await Wishlist.findOne({ user: userId, course: id }).lean();
+//     isFavorite = !!exists;
+
+//     if (course.price > 0) {
+//       const user = await User.findById(userId)
+//         .select("purchasedCourses")
+//         .lean();
+//       if (user && user.purchasedCourses) {
+//         isPurchased = user.purchasedCourses.some(
+//           (purchasedCourseId) => purchasedCourseId.toString() === id.toString(),
+//         );
+//       }
+//     }
+//   }
+
+//   const obj = course.toObject ? course.toObject() : course;
+//   return { ...obj, isFavorite, isPurchased };
+// };
+
 const getCourseById = async (id, userId) => {
   const course = await courseRepository.getCourseById(id);
   if (!course) return null;
@@ -48,16 +79,22 @@ const getCourseById = async (id, userId) => {
       const user = await User.findById(userId)
         .select("purchasedCourses")
         .lean();
+
       if (user && user.purchasedCourses) {
         isPurchased = user.purchasedCourses.some(
-          (purchasedCourseId) => purchasedCourseId.toString() === id.toString(),
+          (pId) => pId.toString() === id.toString(),
         );
       }
     }
   }
 
   const obj = course.toObject ? course.toObject() : course;
-  return { ...obj, isFavorite, isPurchased };
+
+  return {
+    ...obj,
+    isFavorite,
+    isPurchased,
+  };
 };
 
 const updateCourse = async (id, updateData) => {

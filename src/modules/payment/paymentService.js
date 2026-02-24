@@ -2,35 +2,6 @@ const paymentRepository = require("./paymentRepository");
 const courseRepository = require("../course/courseRepository");
 const User = require("../user/userModel");
 
-// const requestPayment = async (userId, courseId) => {
-//   const course = await courseRepository.getCourseById(courseId);
-//   if (!course) throw new Error("Course not found");
-
-//   if (course.price === 0) {
-//     throw new Error("This course is free. No payment required.");
-//   }
-
-//   const user = await User.findById(userId);
-//   if (user.purchasedCourses.includes(courseId)) {
-//     throw new Error("You have already purchased this course.");
-//   }
-
-//   const amount = course.price;
-
-//   const mockAuthority = `AUTH_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-//   const paymentUrl = `https://sandbox.zarinpal.com/pg/StartPay/${mockAuthority}`;
-
-//   const payment = await paymentRepository.createPayment({
-//     user: userId,
-//     course: courseId,
-//     amount,
-//     authority: mockAuthority,
-//     status: "PENDING",
-//   });
-
-//   return { paymentUrl, paymentId: payment._id };
-// };
-
 const requestPayment = async (userId, courseId) => {
   const course = await courseRepository.getCourseById(courseId);
   if (!course) throw new Error("Course not found");
@@ -83,6 +54,19 @@ const verifyPayment = async (authority, status) => {
       status: "SUCCESS",
       refId: mockRefId,
     });
+
+    console.log(`Adding course ${payment.course} to user ${payment.user}`);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      payment.user,
+      { $addToSet: { purchasedCourses: payment.course } },
+      { new: true },
+    );
+
+    console.log(
+      "User's purchased courses after update:",
+      updatedUser.purchasedCourses,
+    );
 
     await User.findByIdAndUpdate(payment.user, {
       $addToSet: { purchasedCourses: payment.course },
