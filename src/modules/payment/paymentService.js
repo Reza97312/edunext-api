@@ -2,33 +2,62 @@ const paymentRepository = require("./paymentRepository");
 const courseRepository = require("../course/courseRepository");
 const User = require("../user/userModel");
 
+// const requestPayment = async (userId, courseId) => {
+//   const course = await courseRepository.getCourseById(courseId);
+//   if (!course) throw new Error("Course not found");
+
+//   if (course.price === 0) {
+//     throw new Error("This course is free. No payment required.");
+//   }
+
+//   const user = await User.findById(userId);
+//   if (user.purchasedCourses.includes(courseId)) {
+//     throw new Error("You have already purchased this course.");
+//   }
+
+//   const amount = course.price;
+
+//   const mockAuthority = `AUTH_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+//   const paymentUrl = `https://sandbox.zarinpal.com/pg/StartPay/${mockAuthority}`;
+
+//   const payment = await paymentRepository.createPayment({
+//     user: userId,
+//     course: courseId,
+//     amount,
+//     authority: mockAuthority,
+//     status: "PENDING",
+//   });
+
+//   return { paymentUrl, paymentId: payment._id };
+// };
+
 const requestPayment = async (userId, courseId) => {
   const course = await courseRepository.getCourseById(courseId);
   if (!course) throw new Error("Course not found");
 
-  if (course.price === 0) {
-    throw new Error("This course is free. No payment required.");
-  }
+  if (course.price === 0) throw new Error("This course is free.");
 
   const user = await User.findById(userId);
   if (user.purchasedCourses.includes(courseId)) {
     throw new Error("You have already purchased this course.");
   }
 
-  const amount = course.price;
+  const paypalToken = `EC-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
-  const mockAuthority = `AUTH_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-  const paymentUrl = `https://sandbox.zarinpal.com/pg/StartPay/${mockAuthority}`;
+  const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
+
+  const paymentUrl = `${clientUrl}/checkout/paypal?token=${paypalToken}&amount=${course.price}&courseName=${encodeURIComponent(course.title)}`;
 
   const payment = await paymentRepository.createPayment({
     user: userId,
     course: courseId,
-    amount,
-    authority: mockAuthority,
+    amount: course.price,
+    authority: paypalToken,
     status: "PENDING",
+    gateway: "paypal",
   });
 
-  return { paymentUrl, paymentId: payment._id };
+  return { paymentUrl, token: paypalToken };
 };
 
 const verifyPayment = async (authority, status) => {

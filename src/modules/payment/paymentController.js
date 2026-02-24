@@ -22,19 +22,44 @@ const requestPayment = async (req, res, next) => {
   }
 };
 
+// const verifyPayment = async (req, res, next) => {
+//   try {
+//     const { Authority, Status } = req.query;
+
+//     if (!Authority) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "Invalid request parameters" });
+//     }
+
+//     const result = await paymentService.verifyPayment(Authority, Status);
+
+//     res.status(200).json(result);
+//   } catch (err) {
+//     next(err);
+//   }
+// };
+
 const verifyPayment = async (req, res, next) => {
   try {
-    const { Authority, Status } = req.query;
+    const { token, PayerID } = req.query;
 
-    if (!Authority) {
+    if (!token) {
       return res
         .status(400)
-        .json({ success: false, message: "Invalid request parameters" });
+        .json({ success: false, message: "Token is missing from PayPal" });
     }
 
-    const result = await paymentService.verifyPayment(Authority, Status);
+    const status = PayerID ? "OK" : "CANCELLED";
 
-    res.status(200).json(result);
+    const result = await paymentService.verifyPayment(token, status);
+    const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
+
+    if (result.success) {
+      return res.redirect(`${clientUrl}/payment/success?ref=${result.refId}`);
+    } else {
+      return res.redirect(`${clientUrl}/payment/cancel`);
+    }
   } catch (err) {
     next(err);
   }
