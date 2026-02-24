@@ -14,7 +14,7 @@ const {
 
 router.post(
   "/",
-  // protect,
+  protect,
   upload.fields([
     { name: "courseImage", maxCount: 1 },
     { name: "teacherImage", maxCount: 1 },
