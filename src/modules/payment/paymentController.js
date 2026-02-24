@@ -22,14 +22,38 @@ const requestPayment = async (req, res, next) => {
   }
 };
 
+// const verifyPayment = async (req, res, next) => {
+//   try {
+//     const { token, PayerID } = req.query;
+
+//     if (!token) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "Token is missing from PayPal" });
+//     }
+
+//     const status = PayerID ? "OK" : "CANCELLED";
+
+//     const result = await paymentService.verifyPayment(token, status);
+//     const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
+
+//     if (result.success) {
+//       return res.redirect(`${clientUrl}/payment/success?ref=${result.refId}`);
+//     } else {
+//       return res.redirect(`${clientUrl}/payment/cancel`);
+//     }
+//   } catch (err) {
+//     next(err);
+//   }
+// };
+
 const verifyPayment = async (req, res, next) => {
   try {
     const { token, PayerID } = req.query;
 
     if (!token) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Token is missing from PayPal" });
+      const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
+      return res.redirect(`${clientUrl}/payment/cancel?reason=missing_token`);
     }
 
     const status = PayerID ? "OK" : "CANCELLED";
@@ -43,7 +67,15 @@ const verifyPayment = async (req, res, next) => {
       return res.redirect(`${clientUrl}/payment/cancel`);
     }
   } catch (err) {
-    next(err);
+    const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
+
+    if (err.message.includes("already been processed")) {
+      return res.redirect(
+        `${clientUrl}/payment/cancel?error=already_processed`,
+      );
+    }
+
+    return res.redirect(`${clientUrl}/payment/cancel?error=server_error`);
   }
 };
 
