@@ -18,7 +18,7 @@ class WishlistController {
     try {
       const result = await wishlistService.removeFromWishlist(
         req.user.id,
-        req.params.wishlistId,
+        req.params.courseId,
       );
 
       res.json({

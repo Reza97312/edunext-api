@@ -104,6 +104,15 @@ class WishlistRepository {
       user: userId,
     });
   }
+
+  async removeByCourse(userId, courseId) {
+    if (!mongoose.Types.ObjectId.isValid(courseId)) return null;
+
+    return await Wishlist.findOneAndDelete({
+      user: userId,
+      course: mongoose.Types.ObjectId(courseId),
+    });
+  }
 }
 
 module.exports = new WishlistRepository();

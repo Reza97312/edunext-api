@@ -11,8 +11,8 @@ class WishlistService {
     });
   }
 
-  async removeFromWishlist(userId, wishlistId) {
-    const deleted = await wishlistRepository.removeById(wishlistId, userId);
+  async removeFromWishlist(userId, courseId) {
+    const deleted = await wishlistRepository.removeByCourse(userId, courseId);
 
     if (!deleted) {
       throw new Error("Wishlist item not found");
