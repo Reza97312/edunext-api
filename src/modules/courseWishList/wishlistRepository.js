@@ -110,7 +110,7 @@ class WishlistRepository {
 
     return await Wishlist.findOneAndDelete({
       user: userId,
-      course: mongoose.Types.ObjectId(courseId),
+      course: courseId,
     });
   }
 }
