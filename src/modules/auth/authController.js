@@ -11,12 +11,42 @@ const register = async (req, res, next) => {
   }
 };
 
+// const login = async (req, res, next) => {
+//   try {
+//     const { email, password } = req.body;
+
+//     const result = await authService.login(email, password);
+//     res.status(200).json({ success: true, data: result });
+//   } catch (error) {
+//     if (error.message === "Invalid credentials") {
+//       res.status(401);
+//     }
+//     next(error);
+//   }
+// };
+
 const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-
     const result = await authService.login(email, password);
-    res.status(200).json({ success: true, data: result });
+
+    const { accessToken, refreshToken, user } = result;
+
+    const cookieOptions = {
+      httpOnly: true,
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    };
+
+    res.cookie("refreshToken", refreshToken, cookieOptions);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        accessToken,
+        user,
+      },
+    });
   } catch (error) {
     if (error.message === "Invalid credentials") {
       res.status(401);
@@ -53,11 +83,28 @@ const resetPassword = async (req, res, next) => {
   }
 };
 
+// const refreshToken = async (req, res, next) => {
+//   try {
+//     const { refreshToken } = req.body;
+
+//     const result = await authService.refreshAccessToken(refreshToken);
+//     res.status(200).json({ success: true, ...result });
+//   } catch (error) {
+//     res.status(401);
+//     next(error);
+//   }
+// };
+
 const refreshToken = async (req, res, next) => {
   try {
-    const { refreshToken } = req.body;
+    const token = req.cookies?.refreshToken;
+    if (!token) {
+      return res
+        .status(401)
+        .json({ success: false, message: "No refresh token" });
+    }
 
-    const result = await authService.refreshAccessToken(refreshToken);
+    const result = await authService.refreshAccessToken(token);
     res.status(200).json({ success: true, ...result });
   } catch (error) {
     res.status(401);

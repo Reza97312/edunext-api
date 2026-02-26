@@ -15,6 +15,7 @@ const courseLevelRoutes = require("./modules/courseLevel/courseLevelRoutes");
 const replyRoutes = require("./modules/courseCommentReply/courseCommentReplyRoutes");
 const wishlistRoutes = require("./modules/courseWishList/wishlistRoutes");
 const paymentRoutes = require("./modules/payment/paymentRoutes");
+const cookieParser = require("cookie-parser");
 
 const app = express();
 
@@ -60,6 +61,8 @@ app.use(
     crossOriginResourcePolicy: { policy: "cross-origin" },
   }),
 );
+
+app.use(cookieParser());
 
 app.use(globalLimiter);
 app.use(express.json());
