@@ -40,6 +40,99 @@ const normalizeCategoriesInput = (raw) => {
   return [];
 };
 
+// const createCourse = async (req, res, next) => {
+//   try {
+//     const files = req.files || {};
+
+//     const courseImagePath = files.courseImage
+//       ? files.courseImage[0].path
+//       : null;
+//     const teacherImagePath = files.teacherImage
+//       ? files.teacherImage[0].path
+//       : null;
+//     const courseVideoPath = files.courseVideo
+//       ? files.courseVideo[0].path
+//       : null;
+
+//     if (!courseImagePath || !teacherImagePath || !courseVideoPath) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "All files (Image, Teacher Image, Video) are required",
+//       });
+//     }
+//     console.log(req.files);
+//     const {
+//       title,
+//       description,
+//       categories: rawCategories,
+//       courseLevel,
+//       teacherName,
+//       rating,
+//       price,
+//     } = req.body;
+//     const createdBy = req.user ? req.user._id : undefined;
+
+//     const categories = normalizeCategoriesInput(rawCategories);
+
+//     if (!categories || categories.length === 0) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "At least one category is required" });
+//     }
+
+//     for (const catId of categories) {
+//       if (!mongoose.Types.ObjectId.isValid(catId)) {
+//         return res
+//           .status(400)
+//           .json({ success: false, message: `Invalid category id: ${catId}` });
+//       }
+//       const found = await Category.findById(catId);
+//       if (!found) {
+//         return res
+//           .status(400)
+//           .json({ success: false, message: `Category not found: ${catId}` });
+//       }
+//     }
+
+//     if (!courseLevel) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "Course level is required" });
+//     }
+//     if (!mongoose.Types.ObjectId.isValid(courseLevel)) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "Invalid course level id" });
+//     }
+//     const foundLevel = await CourseLevel.findById(courseLevel);
+//     if (!foundLevel) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "Course level not found" });
+//     }
+
+//     const payload = {
+//       title,
+//       description,
+//       categories,
+//       courseLevel,
+//       teacherName,
+//       rating: Number(rating) || 0,
+//       price: Number(price) || 0,
+//       courseImage: courseImagePath,
+//       teacherImage: teacherImagePath,
+//       courseVideo: courseVideoPath,
+//       createdBy,
+//     };
+
+//     const course = await courseService.createCourse(payload);
+//     const full = await courseService.getCourseById(course._id, req.user?.id);
+//     res.status(201).json({ success: true, data: full });
+//   } catch (err) {
+//     next(err);
+//   }
+// };
+
 const createCourse = async (req, res, next) => {
   try {
     const files = req.files || {};
@@ -54,13 +147,6 @@ const createCourse = async (req, res, next) => {
       ? files.courseVideo[0].path
       : null;
 
-    if (!courseImagePath || !teacherImagePath || !courseVideoPath) {
-      return res.status(400).json({
-        success: false,
-        message: "All files (Image, Teacher Image, Video) are required",
-      });
-    }
-    console.log(req.files);
     const {
       title,
       description,
@@ -70,52 +156,38 @@ const createCourse = async (req, res, next) => {
       rating,
       price,
     } = req.body;
+
     const createdBy = req.user ? req.user._id : undefined;
 
-    const categories = normalizeCategoriesInput(rawCategories);
+    // ✅ categories (Relax mode: skip invalid)
+    let validCategories = [];
 
-    if (!categories || categories.length === 0) {
-      return res
-        .status(400)
-        .json({ success: false, message: "At least one category is required" });
-    }
+    if (rawCategories) {
+      const parsed = normalizeCategoriesInput(rawCategories);
 
-    for (const catId of categories) {
-      if (!mongoose.Types.ObjectId.isValid(catId)) {
-        return res
-          .status(400)
-          .json({ success: false, message: `Invalid category id: ${catId}` });
-      }
-      const found = await Category.findById(catId);
-      if (!found) {
-        return res
-          .status(400)
-          .json({ success: false, message: `Category not found: ${catId}` });
+      for (const catId of parsed) {
+        if (!mongoose.Types.ObjectId.isValid(catId)) continue;
+
+        const found = await Category.findById(catId);
+        if (found) validCategories.push(catId);
       }
     }
 
-    if (!courseLevel) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Course level is required" });
-    }
-    if (!mongoose.Types.ObjectId.isValid(courseLevel)) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid course level id" });
-    }
-    const foundLevel = await CourseLevel.findById(courseLevel);
-    if (!foundLevel) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Course level not found" });
+    // ✅ courseLevel (Relax mode: null if invalid)
+    let validCourseLevel = null;
+
+    if (courseLevel && mongoose.Types.ObjectId.isValid(courseLevel)) {
+      const foundLevel = await CourseLevel.findById(courseLevel);
+      if (foundLevel) {
+        validCourseLevel = courseLevel;
+      }
     }
 
     const payload = {
       title,
       description,
-      categories,
-      courseLevel,
+      categories: validCategories, // ممکنه خالی باشه
+      courseLevel: validCourseLevel, // ممکنه null باشه
       teacherName,
       rating: Number(rating) || 0,
       price: Number(price) || 0,
@@ -127,7 +199,21 @@ const createCourse = async (req, res, next) => {
 
     const course = await courseService.createCourse(payload);
     const full = await courseService.getCourseById(course._id, req.user?.id);
-    res.status(201).json({ success: true, data: full });
+
+    res.status(201).json({
+      success: true,
+      data: full,
+      meta: {
+        skippedCategories:
+          rawCategories && validCategories.length === 0
+            ? "Some or all categories were invalid and skipped"
+            : undefined,
+        skippedCourseLevel:
+          courseLevel && !validCourseLevel
+            ? "Invalid course level was ignored"
+            : undefined,
+      },
+    });
   } catch (err) {
     next(err);
   }

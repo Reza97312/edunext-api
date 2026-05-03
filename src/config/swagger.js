@@ -4,10 +4,21 @@ const options = {
   definition: {
     openapi: "3.0.0",
     info: {
-      title: "AuthX API",
+      title: "Edunext API",
       version: "1.0.0",
       description: "Authentication & Authorization API",
     },
+    tags: [
+      {
+        name: "Auth",
+        description: "Authentication & Authorization APIs",
+      },
+      {
+        name: "Course",
+        description: "Course management APIs",
+      },
+    ],
+
     servers: [
       {
         url: "http://localhost:5050/api",
