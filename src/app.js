@@ -19,7 +19,7 @@ const cookieParser = require("cookie-parser");
 
 const app = express();
 
-// app.set("trust proxy", 1);
+app.set("trust proxy", 1);
 
 const allowedOrigins = [
   process.env.CLIENT_URL,
