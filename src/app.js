@@ -15,6 +15,12 @@ const courseLevelRoutes = require("./modules/courseLevel/courseLevelRoutes");
 const replyRoutes = require("./modules/courseCommentReply/courseCommentReplyRoutes");
 const wishlistRoutes = require("./modules/courseWishList/wishlistRoutes");
 const paymentRoutes = require("./modules/payment/paymentRoutes");
+const userProgressRoutes = require("./modules/userProgress/userProgressRoutes");
+const examRoutes = require("./modules/exam/examRoutes");
+const questionRoutes = require("./modules/question/questionRoutes");
+const attemptRoutes = require("./modules/attempt/attemptRoutes");
+const certificateRoutes = require("./modules/certificate/certificateRoutes");
+
 const cookieParser = require("cookie-parser");
 
 const app = express();
@@ -73,7 +79,12 @@ app.use("/api/courses", courseRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/replies", replyRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/exams", examRoutes);
+app.use("/api/questions", questionRoutes);
+app.use("/api/attempts", attemptRoutes);
+app.use("/api/certificates", certificateRoutes);
 app.use("/api/user-panel", userPanelRoutes);
+app.use("/api/user-progress", userProgressRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/course-levels", courseLevelRoutes);
 app.use("/api/wishlist", wishlistRoutes);

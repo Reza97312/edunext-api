@@ -1,6 +1,8 @@
 const courseRepository = require("./courseRepository");
 const Wishlist = require("../courseWishList/wishlistModel");
 const User = require("../user/userModel");
+const Attempt = require("../attempt/attemptModel");
+const Certificate = require("../certificate/certificateModel");
 
 const createCourse = async (data) => {
   return await courseRepository.createCourse(data);
@@ -29,9 +31,72 @@ const getAllCourses = async (filters, options = {}, userId) => {
   return { ...result, data };
 };
 
+// const getCourseDetailState = async (course, userId) => {
+//   const obj = course.toObject ? course.toObject() : course;
+
+//   let isPurchased = false;
+//   let progress = 0;
+//   let isVideoCompleted = false;
+
+//   if (obj.price === 0) {
+//     isPurchased = true;
+//   } else if (userId) {
+//     const user = await User.findById(userId).select("purchasedCourses");
+
+//     isPurchased =
+//       user?.purchasedCourses?.some(
+//         (id) => id.toString() === obj._id.toString(),
+//       ) || false;
+//   }
+
+//   if (userId) {
+//     const user = await User.findById(userId).select("courseProgress");
+
+//     const progressData = user?.courseProgress?.find(
+//       (p) => p.course?.toString() === obj._id.toString(),
+//     );
+
+//     if (progressData) {
+//       const watched = progressData.watchedSeconds || 0;
+//       const total = progressData.totalSeconds || 1;
+
+//       progress = Math.round((watched / total) * 100);
+//       isVideoCompleted = progressData.isCompleted;
+//     }
+//   }
+
+//   const attempt = await Attempt.findOne({
+//     user: userId,
+//     exam: obj._id,
+//   });
+
+//   const certificate = await Certificate.findOne({
+//     user: userId,
+//     course: obj._id,
+//   });
+
+//   return {
+//     ...obj,
+
+//     isPurchased,
+//     progress,
+//     isVideoCompleted,
+
+//     examStatus: attempt
+//       ? { taken: true, isPassed: attempt.isPassed }
+//       : { taken: false },
+
+//     certificate: certificate
+//       ? { issued: true, code: certificate.code }
+//       : { issued: false },
+//   };
+// };
+
 // const getCourseById = async (id, userId) => {
 //   const course = await courseRepository.getCourseById(id);
 //   if (!course) return null;
+
+//   return await getCourseDetailState(course, userId);
 
 //   let isFavorite = false;
 //   let isPurchased = false;
@@ -48,52 +113,120 @@ const getAllCourses = async (filters, options = {}, userId) => {
 //       const user = await User.findById(userId)
 //         .select("purchasedCourses")
 //         .lean();
+
 //       if (user && user.purchasedCourses) {
 //         isPurchased = user.purchasedCourses.some(
-//           (purchasedCourseId) => purchasedCourseId.toString() === id.toString(),
+//           (pId) => pId.toString() === id.toString(),
 //         );
 //       }
 //     }
 //   }
 
 //   const obj = course.toObject ? course.toObject() : course;
-//   return { ...obj, isFavorite, isPurchased };
+
+//   return {
+//     ...obj,
+//     isFavorite,
+//     isPurchased,
+//   };
 // };
+
+const getCourseDetailState = async (course, userId) => {
+  const obj = course.toObject ? course.toObject() : course;
+
+  let isPurchased = false;
+  let progress = 0;
+  let isVideoCompleted = false;
+
+  if (obj.price === 0) {
+    isPurchased = true;
+  } else if (userId) {
+    const user = await User.findById(userId).select("purchasedCourses");
+
+    isPurchased =
+      user?.purchasedCourses?.some(
+        (id) => id.toString() === obj._id.toString(),
+      ) || false;
+  }
+
+  if (userId) {
+    const user = await User.findById(userId).select("courseProgress");
+
+    const progressData = user?.courseProgress?.find(
+      (p) => p.course?.toString() === obj._id.toString(),
+    );
+
+    if (progressData) {
+      const watched = progressData.watchedSeconds || 0;
+      const total = progressData.totalSeconds || 1;
+
+      progress = Math.round((watched / total) * 100);
+      isVideoCompleted = progressData.isCompleted;
+    }
+  }
+
+  let examStatus = { taken: false };
+
+  if (userId) {
+    const attempt = await Attempt.findOne({
+      user: userId,
+      exam: obj._id,
+    });
+
+    if (attempt) {
+      examStatus = {
+        taken: true,
+        isPassed: attempt.isPassed,
+      };
+    }
+  }
+
+  let certificate = { issued: false };
+
+  if (userId) {
+    const cert = await Certificate.findOne({
+      user: userId,
+      course: obj._id,
+    });
+
+    if (cert) {
+      certificate = {
+        issued: true,
+        code: cert.code,
+      };
+    }
+  }
+
+  return {
+    ...obj,
+    isPurchased,
+    progress,
+    isVideoCompleted,
+    examStatus,
+    certificate,
+  };
+};
 
 const getCourseById = async (id, userId) => {
   const course = await courseRepository.getCourseById(id);
   if (!course) return null;
 
-  let isFavorite = false;
-  let isPurchased = false;
+  const base = await getCourseDetailState(course, userId);
 
-  if (course.price === 0) {
-    isPurchased = true;
-  }
+  let isFavorite = false;
 
   if (userId) {
-    const exists = await Wishlist.findOne({ user: userId, course: id }).lean();
+    const exists = await Wishlist.findOne({
+      user: userId,
+      course: id,
+    }).lean();
+
     isFavorite = !!exists;
-
-    if (course.price > 0) {
-      const user = await User.findById(userId)
-        .select("purchasedCourses")
-        .lean();
-
-      if (user && user.purchasedCourses) {
-        isPurchased = user.purchasedCourses.some(
-          (pId) => pId.toString() === id.toString(),
-        );
-      }
-    }
   }
 
-  const obj = course.toObject ? course.toObject() : course;
-
   return {
-    ...obj,
+    ...base,
     isFavorite,
-    isPurchased,
   };
 };
 

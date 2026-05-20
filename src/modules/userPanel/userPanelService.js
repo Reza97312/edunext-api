@@ -8,6 +8,14 @@ const getProfile = async (userId) => {
   return user;
 };
 
+const getUserCoursesWithStatus = async (userId) => {
+  return await userPanelRepository.getUserCoursesWithStatus(userId);
+};
+
+const getUserCertificates = async (userId) => {
+  return await userPanelRepository.getUserCertificates(userId);
+};
+
 const updateProfileInfo = async (userId, data) => {
   const { password, role, ...allowedUpdates } = data;
 
@@ -57,4 +65,6 @@ module.exports = {
   updateProfileInfo,
   updateProfileImage,
   deleteProfileImage,
+  getUserCoursesWithStatus,
+  getUserCertificates,
 };

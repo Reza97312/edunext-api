@@ -12,6 +12,32 @@ const getProfile = async (req, res, next) => {
   }
 };
 
+const getMyCourses = async (req, res, next) => {
+  try {
+    const data = await userPanelService.getUserCoursesWithStatus(req.user._id);
+
+    res.status(200).json({
+      status: "success",
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getCertificates = async (req, res, next) => {
+  try {
+    const data = await userPanelService.getUserCertificates(req.user._id);
+
+    res.status(200).json({
+      status: "success",
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const updateProfile = async (req, res, next) => {
   try {
     const updatedUser = await userPanelService.updateProfileInfo(
@@ -68,4 +94,6 @@ module.exports = {
   updateProfile,
   uploadAvatar,
   deleteAvatar,
+  getMyCourses,
+  getCertificates,
 };

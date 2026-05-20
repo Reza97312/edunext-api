@@ -53,9 +53,9 @@ const options = {
             email: {
               type: "string",
               format: "email",
-              example: "john@test.com",
+              example: "rezakazemi1384@yahoo.com",
             },
-            password: { type: "string", example: "123456" },
+            password: { type: "string", example: "Reza9734" },
           },
         },
         ForgotPasswordRequest: {

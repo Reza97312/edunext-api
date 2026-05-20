@@ -51,6 +51,28 @@ router.get("/profile", userPanelController.getProfile);
 
 /**
  * @openapi
+ * /user-panel/my-courses:
+ *   get:
+ *     summary: Get user purchased courses with exam status
+ *     tags: ["User Panel"]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.get("/my-courses", userPanelController.getMyCourses);
+
+/**
+ * @openapi
+ * /user-panel/certificates:
+ *   get:
+ *     summary: Get user certificates
+ *     tags: ["User Panel"]
+ *     security:
+ *       - bearerAuth: []
+ */
+router.get("/certificates", userPanelController.getCertificates);
+
+/**
+ * @openapi
  * /user-panel/profile:
  *   put:
  *     summary: Update user profile
