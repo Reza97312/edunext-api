@@ -12,6 +12,10 @@ const getQuestionById = async (id) => {
   return await Question.findById(id);
 };
 
+const bulkCreateQuestions = async (questions) => {
+  return await Question.insertMany(questions);
+};
+
 const updateQuestion = async (id, data) => {
   return await Question.findByIdAndUpdate(id, data, {
     new: true,
@@ -29,4 +33,5 @@ module.exports = {
   getQuestionById,
   updateQuestion,
   deleteQuestion,
+  bulkCreateQuestions,
 };

@@ -82,9 +82,9 @@ const userSchema = new mongoose.Schema(
       },
     ],
     role: {
-      type: String,
-      enum: ["user", "admin", "moderator"],
-      default: "user",
+      type: [String],
+      enum: ["user", "admin", "moderator", "teacher", "superadmin"],
+      default: ["user"],
     },
     isVerified: {
       type: Boolean,

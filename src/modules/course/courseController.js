@@ -2,6 +2,8 @@ const courseService = require("./courseService");
 const mongoose = require("mongoose");
 const Category = require("../category/categoryModel");
 const CourseLevel = require("../courseLevel/courseLevelModel");
+const User = require("../user/userModel");
+const Course = require("./courseModel");
 
 const makeFullImageUrl = (req, imgPath) => {
   if (!imgPath) return imgPath;
@@ -40,108 +42,34 @@ const normalizeCategoriesInput = (raw) => {
   return [];
 };
 
-// const createCourse = async (req, res, next) => {
-//   try {
-//     const files = req.files || {};
+const resolveTeacher = async (req) => {
+  const currentUser = req.user;
 
-//     const courseImagePath = files.courseImage
-//       ? files.courseImage[0].path
-//       : null;
-//     const teacherImagePath = files.teacherImage
-//       ? files.teacherImage[0].path
-//       : null;
-//     const courseVideoPath = files.courseVideo
-//       ? files.courseVideo[0].path
-//       : null;
+  const isAdmin = currentUser.role.includes("admin");
+  const isSuperAdmin = currentUser.role.includes("superadmin");
 
-//     if (!courseImagePath || !teacherImagePath || !courseVideoPath) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "All files (Image, Teacher Image, Video) are required",
-//       });
-//     }
-//     console.log(req.files);
-//     const {
-//       title,
-//       description,
-//       categories: rawCategories,
-//       courseLevel,
-//       teacherName,
-//       rating,
-//       price,
-//     } = req.body;
-//     const createdBy = req.user ? req.user._id : undefined;
+  if (isAdmin || isSuperAdmin) {
+    if (req.body.teacherId) {
+      return await User.findById(req.body.teacherId).select(
+        "name email phoneNumber gender birthday about profileImage role",
+      );
+    }
+  }
 
-//     const categories = normalizeCategoriesInput(rawCategories);
-
-//     if (!categories || categories.length === 0) {
-//       return res
-//         .status(400)
-//         .json({ success: false, message: "At least one category is required" });
-//     }
-
-//     for (const catId of categories) {
-//       if (!mongoose.Types.ObjectId.isValid(catId)) {
-//         return res
-//           .status(400)
-//           .json({ success: false, message: `Invalid category id: ${catId}` });
-//       }
-//       const found = await Category.findById(catId);
-//       if (!found) {
-//         return res
-//           .status(400)
-//           .json({ success: false, message: `Category not found: ${catId}` });
-//       }
-//     }
-
-//     if (!courseLevel) {
-//       return res
-//         .status(400)
-//         .json({ success: false, message: "Course level is required" });
-//     }
-//     if (!mongoose.Types.ObjectId.isValid(courseLevel)) {
-//       return res
-//         .status(400)
-//         .json({ success: false, message: "Invalid course level id" });
-//     }
-//     const foundLevel = await CourseLevel.findById(courseLevel);
-//     if (!foundLevel) {
-//       return res
-//         .status(400)
-//         .json({ success: false, message: "Course level not found" });
-//     }
-
-//     const payload = {
-//       title,
-//       description,
-//       categories,
-//       courseLevel,
-//       teacherName,
-//       rating: Number(rating) || 0,
-//       price: Number(price) || 0,
-//       courseImage: courseImagePath,
-//       teacherImage: teacherImagePath,
-//       courseVideo: courseVideoPath,
-//       createdBy,
-//     };
-
-//     const course = await courseService.createCourse(payload);
-//     const full = await courseService.getCourseById(course._id, req.user?.id);
-//     res.status(201).json({ success: true, data: full });
-//   } catch (err) {
-//     next(err);
-//   }
-// };
+  return await User.findById(currentUser._id).select(
+    "name email phoneNumber gender birthday about profileImage role",
+  );
+};
 
 const createCourse = async (req, res, next) => {
+  const isAdmin = req.user.role.includes("admin");
+  const isSuperAdmin = req.user.role.includes("superadmin");
+
   try {
     const files = req.files || {};
 
     const courseImagePath = files.courseImage
       ? files.courseImage[0].path
-      : null;
-    const teacherImagePath = files.teacherImage
-      ? files.teacherImage[0].path
       : null;
     const courseVideoPath = files.courseVideo
       ? files.courseVideo[0].path
@@ -152,14 +80,13 @@ const createCourse = async (req, res, next) => {
       description,
       categories: rawCategories,
       courseLevel,
-      teacherName,
       rating,
       price,
     } = req.body;
 
     const createdBy = req.user ? req.user._id : undefined;
+    const teacher = await resolveTeacher(req);
 
-    // ✅ categories (Relax mode: skip invalid)
     let validCategories = [];
 
     if (rawCategories) {
@@ -173,7 +100,6 @@ const createCourse = async (req, res, next) => {
       }
     }
 
-    // ✅ courseLevel (Relax mode: null if invalid)
     let validCourseLevel = null;
 
     if (courseLevel && mongoose.Types.ObjectId.isValid(courseLevel)) {
@@ -186,16 +112,19 @@ const createCourse = async (req, res, next) => {
     const payload = {
       title,
       description,
-      categories: validCategories, // ممکنه خالی باشه
-      courseLevel: validCourseLevel, // ممکنه null باشه
-      teacherName,
+      categories: validCategories,
+      courseLevel: validCourseLevel,
+      teacher: teacher._id,
       rating: Number(rating) || 0,
       price: Number(price) || 0,
       courseImage: courseImagePath,
-      teacherImage: teacherImagePath,
       courseVideo: courseVideoPath,
       createdBy,
     };
+
+    if (!isAdmin && !isSuperAdmin) {
+      payload.teacher = req.user._id;
+    }
 
     const course = await courseService.createCourse(payload);
     const full = await courseService.getCourseById(course._id, req.user?.id);
@@ -307,7 +236,6 @@ const getCourseById = async (req, res, next) => {
     const result = {
       ...courseData,
       courseImage: makeFullImageUrl(req, course.courseImage),
-      teacherImage: makeFullImageUrl(req, course.teacherImage),
       courseVideo: makeFullImageUrl(req, course.courseVideo),
     };
 
@@ -320,17 +248,34 @@ const getCourseById = async (req, res, next) => {
 const deleteCourse = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const deletedCourse = await courseService.deleteCourse(id);
 
-    if (!deletedCourse) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Course not found" });
+    const course = await Course.findById(id);
+
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: "Course not found",
+      });
     }
 
-    res
-      .status(200)
-      .json({ success: true, message: "Course deleted successfully" });
+    const isAdmin = req.user.role.includes("admin");
+    const isSuperAdmin = req.user.role.includes("superadmin");
+
+    if (!isAdmin && !isSuperAdmin) {
+      if (course.teacher.toString() !== req.user._id.toString()) {
+        return res.status(403).json({
+          success: false,
+          message: "You can only delete your own courses",
+        });
+      }
+    }
+
+    await courseService.deleteCourse(id);
+
+    res.status(200).json({
+      success: true,
+      message: "Course deleted successfully",
+    });
   } catch (err) {
     next(err);
   }
@@ -341,22 +286,79 @@ const updateCourse = async (req, res, next) => {
     const { id } = req.params;
     const files = req.files || {};
 
+    const isAdmin = req.user.role.includes("admin");
+    const isSuperAdmin = req.user.role.includes("superadmin");
+    const isPrivileged = isAdmin || isSuperAdmin;
+
+    const existingCourse = await Course.findById(id).select("teacher");
+
+    if (!existingCourse) {
+      return res.status(404).json({
+        success: false,
+        message: "Course not found",
+      });
+    }
+
+    if (!isPrivileged) {
+      if (existingCourse.teacher.toString() !== req.user._id.toString()) {
+        return res.status(403).json({
+          success: false,
+          message: "You can only update your own courses",
+        });
+      }
+    }
+
     let updateData = { ...req.body };
 
     if (files.courseImage) updateData.courseImage = files.courseImage[0].path;
-    if (files.teacherImage)
-      updateData.teacherImage = files.teacherImage[0].path;
     if (files.courseVideo) updateData.courseVideo = files.courseVideo[0].path;
+
+    if (isPrivileged && req.body.teacherId) {
+      const teacher = await User.findById(req.body.teacherId).select(
+        "name role",
+      );
+
+      if (!teacher || !teacher.role.includes("teacher")) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid teacherId",
+        });
+      }
+
+      updateData.teacher = teacher._id;
+    }
 
     const updatedCourse = await courseService.updateCourse(id, updateData);
 
     if (!updatedCourse) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Course not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Course not found",
+      });
     }
 
-    res.status(200).json({ success: true, data: updatedCourse });
+    res.status(200).json({
+      success: true,
+      data: updatedCourse,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const getRelatedCourses = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user?._id || null;
+
+    const limit = Math.min(Number(req.query.limit) || 6, 20);
+
+    const courses = await courseService.getRelatedCourses(id, userId, limit);
+
+    res.status(200).json({
+      success: true,
+      data: courses,
+    });
   } catch (err) {
     next(err);
   }
@@ -368,4 +370,5 @@ module.exports = {
   getCourseById,
   deleteCourse,
   updateCourse,
+  getRelatedCourses,
 };

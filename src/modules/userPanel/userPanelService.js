@@ -59,6 +59,15 @@ const deleteProfileImage = async (userId) => {
   const updatedUser = await userPanelRepository.removeUserAvatar(userId);
   return updatedUser;
 };
+const getUserReports = async (userId) => {
+  const data = await userPanelRepository.getUserReports(userId);
+
+  if (!data) {
+    throw new Error("User not found");
+  }
+
+  return data;
+};
 
 module.exports = {
   getProfile,
@@ -67,4 +76,5 @@ module.exports = {
   deleteProfileImage,
   getUserCoursesWithStatus,
   getUserCertificates,
+  getUserReports,
 };

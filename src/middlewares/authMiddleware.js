@@ -14,7 +14,12 @@ const protect = async (req, res, next) => {
       const decoded = verifyAccessToken(token);
 
       req.user = await User.findById(decoded.id).select("-password");
-
+      if (!req.user) {
+        return res.status(401).json({
+          success: false,
+          message: "User not found",
+        });
+      }
       next();
     } catch (error) {
       console.log("JWT Error:", error.message);

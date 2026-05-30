@@ -1,19 +1,73 @@
-// const express = require("express");
-// const router = express.Router();
-// const paymentController = require("./paymentController");
-// const { protect } = require("../../middlewares/authMiddleware");
-
-// router.post("/request", protect, paymentController.requestPayment);
-
-// router.get("/verify", paymentController.verifyPayment);
-
-// router.get("/my-payments", protect, paymentController.getMyPayments);
-
-// module.exports = router;
 const express = require("express");
+const authorize = require("../../middlewares/roleMiddleware");
 const router = express.Router();
 const paymentController = require("./paymentController");
 const { protect } = require("../../middlewares/authMiddleware");
+
+/**
+ * @openapi
+ * /payments/overview:
+ *   get:
+ *     summary: Get sales overview for dashboard
+ *     description: Returns revenue, transactions, failed payments, average transaction value, and chart data for 7/30/90 days.
+ *     tags: ["Course - Payment"]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: period
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           enum: [7, 30, 90]
+ *           default: 7
+ *         description: Number of days to analyze
+ *     responses:
+ *       200:
+ *         description: Dashboard overview data
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ */
+router.get(
+  "/overview",
+  protect,
+  authorize("admin", "superadmin"),
+  paymentController.getAdminSalesOverview,
+);
+
+/**
+ * @openapi
+ * /payments/latest-transactions:
+ *   get:
+ *     summary: Get latest transactions for dashboard
+ *     description: Returns latest successful transactions. Use limit query param for number of rows.
+ *     tags: ["Course - Payment"]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 5
+ *         description: Number of transactions to return
+ *     responses:
+ *       200:
+ *         description: Latest transactions
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ */
+router.get(
+  "/latest-transactions",
+  protect,
+  authorize("admin", "superadmin"),
+  paymentController.getLatestTransactions,
+);
 
 /**
  * @openapi

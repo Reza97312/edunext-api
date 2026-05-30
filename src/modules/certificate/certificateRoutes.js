@@ -5,17 +5,6 @@ const { protect } = require("../../middlewares/authMiddleware");
 
 /**
  * @openapi
- * /certificates/my:
- *   get:
- *     summary: Get logged in user certificates
- *     tags: [Certificate]
- *     security:
- *       - bearerAuth: []
- */
-router.get("/my", protect, controller.getMyCertificates);
-
-/**
- * @openapi
  * /certificates/{code}:
  *   get:
  *     summary: Get certificate by code (verify certificate)

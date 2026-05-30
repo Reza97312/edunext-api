@@ -1,12 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const controller = require("./questionController");
+const { validateCreateQuestionsBulk } = require("./questionValidation");
 
 /**
  * @openapi
- * /questions:
+ * /questions/bulk:
  *   post:
- *     summary: Create a question for an exam
+ *     summary: Create multiple questions for one exam
  *     tags: [Question]
  *     requestBody:
  *       required: true
@@ -15,34 +16,42 @@ const controller = require("./questionController");
  *           schema:
  *             type: object
  *             required:
- *               - exam
- *               - text
- *               - correctAnswer
+ *               - examId
+ *               - questions
  *             properties:
- *               exam:
+ *               examId:
  *                 type: string
  *                 example: "69fb8f728188536e399c8b83"
- *               text:
- *                 type: string
- *                 example: "What is Node.js?"
- *               options:
+ *               questions:
  *                 type: array
  *                 items:
- *                   type: string
- *                 example:
- *                   - "Runtime"
- *                   - "Database"
- *                   - "Framework"
- *                   - "Language"
- *               correctAnswer:
- *                 type: string
- *                 example: "Runtime"
- *               score:
- *                 type: number
- *                 example: 1
+ *                   type: object
+ *                   required:
+ *                     - text
+ *                     - options
+ *                     - correctAnswer
+ *                   properties:
+ *                     text:
+ *                       type: string
+ *                       example: "What is Node.js?"
+ *                     options:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                       example:
+ *                         - "Runtime"
+ *                         - "Database"
+ *                         - "Framework"
+ *                         - "Language"
+ *                     correctAnswer:
+ *                       type: string
+ *                       example: "Runtime"
+ *                     score:
+ *                       type: number
+ *                       example: 1
  *     responses:
  *       201:
- *         description: Question created successfully
+ *         description: Questions created successfully
  *         content:
  *           application/json:
  *             schema:
@@ -51,10 +60,19 @@ const controller = require("./questionController");
  *                 success:
  *                   type: boolean
  *                   example: true
+ *                 count:
+ *                   type: number
+ *                   example: 20
  *                 data:
- *                   type: object
+ *                   type: array
+ *                   items:
+ *                     type: object
  */
-router.post("/", controller.createQuestion);
+router.post(
+  "/bulk",
+  validateCreateQuestionsBulk,
+  controller.createQuestionsBulk,
+);
 
 /**
  * @openapi
@@ -125,81 +143,3 @@ router.put("/:id", controller.updateQuestion);
 router.delete("/:id", controller.deleteQuestion);
 
 module.exports = router;
-// const express = require("express");
-// const router = express.Router();
-// const controller = require("./questionController");
-
-// /**
-//  * @openapi
-//  * /questions:
-//  *   post:
-//  *     summary: Create a question for an exam
-//  *     tags: [Question]
-//  *     requestBody:
-//  *       required: true
-//  *       content:
-//  *         application/json:
-//  *           schema:
-//  *             type: object
-//  *             required:
-//  *               - exam
-//  *               - text
-//  *               - correctAnswer
-//  *             properties:
-//  *               exam:
-//  *                 type: string
-//  *                 example: "69fb8f728188536e399c8b83"
-//  *               text:
-//  *                 type: string
-//  *                 example: "What is Node.js?"
-//  *               options:
-//  *                 type: array
-//  *                 items:
-//  *                   type: string
-//  *                 example:
-//  *                   - "Runtime"
-//  *                   - "Database"
-//  *                   - "Framework"
-//  *                   - "Language"
-//  *               correctAnswer:
-//  *                 type: string
-//  *                 example: "Runtime"
-//  *               score:
-//  *                 type: number
-//  *                 example: 1
-//  *     responses:
-//  *       201:
-//  *         description: Question created successfully
-//  *         content:
-//  *           application/json:
-//  *             schema:
-//  *               type: object
-//  *               properties:
-//  *                 success:
-//  *                   type: boolean
-//  *                   example: true
-//  *                 data:
-//  *                   type: object
-//  */
-// router.post("/", controller.createQuestion);
-
-// /**
-//  * @openapi
-//  * /questions/exam/{examId}:
-//  *   get:
-//  *     summary: Get questions by exam
-//  *     tags: [Question]
-//  *     parameters:
-//  *       - in: path
-//  *         name: examId
-//  *         required: true
-//  *         schema:
-//  *           type: string
-//  *         example: "69fb8f728188536e399c8b83"
-//  *     responses:
-//  *       200:
-//  *         description: Questions fetched successfully
-//  */
-// router.get("/exam/:examId", controller.getByExam);
-
-// module.exports = router;

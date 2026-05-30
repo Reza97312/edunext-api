@@ -1,20 +1,3 @@
-// const express = require("express");
-// const router = express.Router();
-// const replyController = require("./courseCommentReplyController");
-// const { protect } = require("../../middlewares/authMiddleware");
-// const { validateCreateReply } = require("./courseCommentReplyValidation");
-
-// router.post(
-//   "/:commentId",
-//   protect,
-//   validateCreateReply,
-//   replyController.createReply,
-// );
-
-// router.get("/:commentId", replyController.getRepliesByCommentId);
-
-// module.exports = router;
-
 const express = require("express");
 const router = express.Router();
 const replyController = require("./courseCommentReplyController");

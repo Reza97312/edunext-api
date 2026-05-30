@@ -31,106 +31,6 @@ const getAllCourses = async (filters, options = {}, userId) => {
   return { ...result, data };
 };
 
-// const getCourseDetailState = async (course, userId) => {
-//   const obj = course.toObject ? course.toObject() : course;
-
-//   let isPurchased = false;
-//   let progress = 0;
-//   let isVideoCompleted = false;
-
-//   if (obj.price === 0) {
-//     isPurchased = true;
-//   } else if (userId) {
-//     const user = await User.findById(userId).select("purchasedCourses");
-
-//     isPurchased =
-//       user?.purchasedCourses?.some(
-//         (id) => id.toString() === obj._id.toString(),
-//       ) || false;
-//   }
-
-//   if (userId) {
-//     const user = await User.findById(userId).select("courseProgress");
-
-//     const progressData = user?.courseProgress?.find(
-//       (p) => p.course?.toString() === obj._id.toString(),
-//     );
-
-//     if (progressData) {
-//       const watched = progressData.watchedSeconds || 0;
-//       const total = progressData.totalSeconds || 1;
-
-//       progress = Math.round((watched / total) * 100);
-//       isVideoCompleted = progressData.isCompleted;
-//     }
-//   }
-
-//   const attempt = await Attempt.findOne({
-//     user: userId,
-//     exam: obj._id,
-//   });
-
-//   const certificate = await Certificate.findOne({
-//     user: userId,
-//     course: obj._id,
-//   });
-
-//   return {
-//     ...obj,
-
-//     isPurchased,
-//     progress,
-//     isVideoCompleted,
-
-//     examStatus: attempt
-//       ? { taken: true, isPassed: attempt.isPassed }
-//       : { taken: false },
-
-//     certificate: certificate
-//       ? { issued: true, code: certificate.code }
-//       : { issued: false },
-//   };
-// };
-
-// const getCourseById = async (id, userId) => {
-//   const course = await courseRepository.getCourseById(id);
-//   if (!course) return null;
-
-//   return await getCourseDetailState(course, userId);
-
-//   let isFavorite = false;
-//   let isPurchased = false;
-
-//   if (course.price === 0) {
-//     isPurchased = true;
-//   }
-
-//   if (userId) {
-//     const exists = await Wishlist.findOne({ user: userId, course: id }).lean();
-//     isFavorite = !!exists;
-
-//     if (course.price > 0) {
-//       const user = await User.findById(userId)
-//         .select("purchasedCourses")
-//         .lean();
-
-//       if (user && user.purchasedCourses) {
-//         isPurchased = user.purchasedCourses.some(
-//           (pId) => pId.toString() === id.toString(),
-//         );
-//       }
-//     }
-//   }
-
-//   const obj = course.toObject ? course.toObject() : course;
-
-//   return {
-//     ...obj,
-//     isFavorite,
-//     isPurchased,
-//   };
-// };
-
 const getCourseDetailState = async (course, userId) => {
   const obj = course.toObject ? course.toObject() : course;
 
@@ -238,10 +138,40 @@ const deleteCourse = async (id) => {
   return await courseRepository.deleteCourse(id);
 };
 
+const getRelatedCourses = async (courseId, userId, limit = 6) => {
+  const course = await courseRepository.getCourseById(courseId);
+
+  if (!course) return [];
+
+  const categoryIds = course.categories.map((c) =>
+    c._id ? c._id.toString() : c.toString(),
+  );
+
+  const courses = await courseRepository.getRelatedCourses(
+    courseId,
+    categoryIds,
+    limit,
+  );
+
+  if (!userId) return courses;
+
+  const wishlistItems = await Wishlist.find({ user: userId }).select("course");
+  const favoriteIds = wishlistItems.map((i) => i.course.toString());
+
+  return courses.map((c) => {
+    const obj = c.toObject ? c.toObject() : c;
+    return {
+      ...obj,
+      isFavorite: favoriteIds.includes(obj._id.toString()),
+    };
+  });
+};
+
 module.exports = {
   createCourse,
   getAllCourses,
   getCourseById,
   updateCourse,
   deleteCourse,
+  getRelatedCourses,
 };

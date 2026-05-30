@@ -2,6 +2,92 @@ const paymentRepository = require("./paymentRepository");
 const courseRepository = require("../course/courseRepository");
 const User = require("../user/userModel");
 
+const normalizePeriod = (period) => {
+  const allowed = [7, 30, 90];
+  return allowed.includes(period) ? period : 7;
+};
+
+const buildDateRange = (days) => {
+  const endDate = new Date();
+
+  const end = new Date(
+    Date.UTC(
+      endDate.getUTCFullYear(),
+      endDate.getUTCMonth(),
+      endDate.getUTCDate(),
+      23,
+      59,
+      59,
+      999,
+    ),
+  );
+
+  const start = new Date(
+    Date.UTC(
+      endDate.getUTCFullYear(),
+      endDate.getUTCMonth(),
+      endDate.getUTCDate() - (days - 1),
+      0,
+      0,
+      0,
+      0,
+    ),
+  );
+
+  return { startDate: start, endDate: end };
+};
+
+const buildPreviousRange = (days) => {
+  const current = buildDateRange(days);
+  const previousEnd = new Date(current.startDate);
+  const previousStart = new Date(previousEnd);
+  previousStart.setDate(previousEnd.getDate() - days);
+
+  return {
+    startDate: previousStart,
+    endDate: previousEnd,
+  };
+};
+
+const percentageChange = (current, previous) => {
+  if (previous === 0) {
+    if (current === 0) return 0;
+    return 100;
+  }
+
+  return Number((((current - previous) / previous) * 100).toFixed(1));
+};
+
+const formatTrend = (rows, startDate, days) => {
+  const map = new Map();
+
+  for (let i = 0; i < days; i++) {
+    const d = new Date(startDate);
+    d.setUTCDate(startDate.getUTCDate() + i);
+
+    const key = d.toISOString().slice(0, 10);
+
+    map.set(key, {
+      revenue: 0,
+      transactions: 0,
+    });
+  }
+
+  rows.forEach((row) => {
+    if (map.has(row._id)) {
+      map.set(row._id, {
+        revenue: row.revenue || 0,
+        transactions: row.transactions || 0,
+      });
+    }
+  });
+
+  return Array.from(map.entries()).map(([date, value]) => ({
+    date,
+    ...value,
+  }));
+};
+
 const requestPayment = async (userId, courseId) => {
   const course = await courseRepository.getCourseById(courseId);
   if (!course) throw new Error("Course not found");
@@ -84,8 +170,96 @@ const getUserPaymentHistory = async (userId) => {
   return await paymentRepository.getUserPayments(userId);
 };
 
+const getAdminSalesOverview = async (period = 7) => {
+  const days = normalizePeriod(Number(period));
+
+  const currentRange = buildDateRange(days);
+  const previousRange = buildPreviousRange(days);
+
+  const [
+    currentSummary,
+    previousSummary,
+    currentFailed,
+    previousFailed,
+    trendRows,
+  ] = await Promise.all([
+    paymentRepository.getPaymentSummaryInRange({
+      startDate: currentRange.startDate,
+      endDate: currentRange.endDate,
+      status: "SUCCESS",
+    }),
+    paymentRepository.getPaymentSummaryInRange({
+      startDate: previousRange.startDate,
+      endDate: previousRange.endDate,
+      status: "SUCCESS",
+    }),
+    paymentRepository.countPaymentsInRange({
+      startDate: currentRange.startDate,
+      endDate: currentRange.endDate,
+      status: "FAILED",
+    }),
+    paymentRepository.countPaymentsInRange({
+      startDate: previousRange.startDate,
+      endDate: previousRange.endDate,
+      status: "FAILED",
+    }),
+    paymentRepository.getRevenueTrendInRange({
+      startDate: currentRange.startDate,
+      endDate: currentRange.endDate,
+      status: "SUCCESS",
+    }),
+  ]);
+
+  const chartData = formatTrend(trendRows, currentRange.startDate, days);
+
+  return {
+    period: days,
+    cards: {
+      revenue: {
+        value: currentSummary.revenue || 0,
+        changePercent: percentageChange(
+          currentSummary.revenue || 0,
+          previousSummary.revenue || 0,
+        ),
+      },
+      transactions: {
+        value: currentSummary.transactions || 0,
+        changePercent: percentageChange(
+          currentSummary.transactions || 0,
+          previousSummary.transactions || 0,
+        ),
+      },
+      failedPayments: {
+        value: currentFailed || 0,
+        changePercent: percentageChange(
+          currentFailed || 0,
+          previousFailed || 0,
+        ),
+      },
+      averageTransactionValue: {
+        value: currentSummary.avgOrderValue || 0,
+        changePercent: percentageChange(
+          currentSummary.avgOrderValue || 0,
+          previousSummary.avgOrderValue || 0,
+        ),
+      },
+    },
+    chart: {
+      labels: chartData.map((item) => item.date),
+      revenue: chartData.map((item) => item.revenue),
+      transactions: chartData.map((item) => item.transactions),
+    },
+  };
+};
+
+const getLatestTransactions = async (limit = 5) => {
+  return await paymentRepository.getLatestSuccessfulPayments(limit);
+};
+
 module.exports = {
   requestPayment,
   verifyPayment,
   getUserPaymentHistory,
+  getLatestTransactions,
+  getAdminSalesOverview,
 };

@@ -9,6 +9,20 @@ const createQuestion = async (req, res, next) => {
   }
 };
 
+const createQuestionsBulk = async (req, res, next) => {
+  try {
+    const result = await service.createQuestionsBulk(req.body);
+
+    res.status(201).json({
+      success: true,
+      count: result.length,
+      data: result,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 const getByExam = async (req, res, next) => {
   try {
     const data = await service.getByExam(req.params.examId);
@@ -36,4 +50,10 @@ const deleteQuestion = async (req, res, next) => {
   }
 };
 
-module.exports = { createQuestion, getByExam, updateQuestion, deleteQuestion };
+module.exports = {
+  createQuestion,
+  getByExam,
+  updateQuestion,
+  deleteQuestion,
+  createQuestionsBulk,
+};

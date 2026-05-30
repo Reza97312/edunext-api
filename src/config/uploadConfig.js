@@ -17,10 +17,7 @@ const storage = new CloudinaryStorage({
     if (file.fieldname === "profileImage") {
       folderName = "edunext/users";
       resourceType = "image";
-    } else if (
-      file.fieldname === "courseImage" ||
-      file.fieldname === "teacherImage"
-    ) {
+    } else if (file.fieldname === "courseImage") {
       folderName = "edunext/images";
       resourceType = "image";
     } else if (file.fieldname === "courseVideo") {

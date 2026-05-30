@@ -1,14 +1,5 @@
 const service = require("./certificateService");
 
-const getMyCertificates = async (req, res, next) => {
-  try {
-    const data = await service.getUserCertificates(req.user._id);
-    res.status(200).json({ success: true, data });
-  } catch (err) {
-    next(err);
-  }
-};
-
 const getCertificateByCode = async (req, res, next) => {
   try {
     const data = await service.getCertificateByCode(req.params.code);
@@ -27,6 +18,5 @@ const getCertificateByCode = async (req, res, next) => {
 };
 
 module.exports = {
-  getMyCertificates,
   getCertificateByCode,
 };

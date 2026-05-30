@@ -11,20 +11,6 @@ const register = async (req, res, next) => {
   }
 };
 
-// const login = async (req, res, next) => {
-//   try {
-//     const { email, password } = req.body;
-
-//     const result = await authService.login(email, password);
-//     res.status(200).json({ success: true, data: result });
-//   } catch (error) {
-//     if (error.message === "Invalid credentials") {
-//       res.status(401);
-//     }
-//     next(error);
-//   }
-// };
-
 const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -82,18 +68,6 @@ const resetPassword = async (req, res, next) => {
     next(error);
   }
 };
-
-// const refreshToken = async (req, res, next) => {
-//   try {
-//     const { refreshToken } = req.body;
-
-//     const result = await authService.refreshAccessToken(refreshToken);
-//     res.status(200).json({ success: true, ...result });
-//   } catch (error) {
-//     res.status(401);
-//     next(error);
-//   }
-// };
 
 const refreshToken = async (req, res, next) => {
   try {

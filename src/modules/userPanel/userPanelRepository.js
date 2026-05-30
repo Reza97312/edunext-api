@@ -4,7 +4,16 @@ const Attempt = require("../attempt/attemptModel");
 const Course = require("../course/courseModel");
 
 const getUserCoursesWithStatus = async (userId) => {
-  const user = await User.findById(userId).populate("purchasedCourses").lean();
+  const user = await User.findById(userId)
+    .populate({
+      path: "purchasedCourses",
+      populate: [
+        { path: "teacher", select: "name profileImage" },
+        { path: "categories", select: "name" },
+        { path: "courseLevel", select: "name" },
+      ],
+    })
+    .lean();
 
   if (!user) return null;
 
@@ -20,21 +29,39 @@ const getUserCoursesWithStatus = async (userId) => {
       (c) => c.course.toString() === course._id.toString(),
     );
 
-    return {
-      course,
-      examStatus: attempt
-        ? {
-            taken: true,
-            score: attempt.score,
-            isPassed: attempt.isPassed,
-          }
-        : { taken: false },
+    const progressEntry = user.courseProgress?.find(
+      (p) => p.course?.toString() === course._id.toString(),
+    );
 
-      certificate: certificate
+    const progressPercent =
+      progressEntry && progressEntry.totalSeconds > 0
+        ? Math.round(
+            (progressEntry.watchedSeconds / progressEntry.totalSeconds) * 100,
+          )
+        : 0;
+
+    const { teacher, teacherImage, ...courseData } = course;
+
+    return {
+      course: courseData,
+      teacher: teacher
         ? {
-            issued: true,
-            code: certificate.code,
+            _id: teacher._id,
+            name: teacher.name,
+            profileImage: teacher.profileImage,
           }
+        : null,
+      progress: {
+        watchedSeconds: progressEntry?.watchedSeconds ?? 0,
+        totalSeconds: progressEntry?.totalSeconds ?? 0,
+        percent: progressPercent,
+        isCompleted: progressEntry?.isCompleted ?? false,
+      },
+      examStatus: attempt
+        ? { taken: true, score: attempt.score, isPassed: attempt.isPassed }
+        : { taken: false },
+      certificate: certificate
+        ? { issued: true, code: certificate.code }
         : { issued: false },
     };
   });
@@ -80,6 +107,29 @@ const removeUserAvatar = async (userId) => {
   ).select("-password");
 };
 
+const getUserReports = async (userId) => {
+  const user = await User.findById(userId)
+    .select("purchasedCourses courseProgress")
+    .lean();
+
+  if (!user) return null;
+
+  const certificatesCount = await Certificate.countDocuments({
+    user: userId,
+  });
+
+  const purchasedCoursesCount = user.purchasedCourses?.length || 0;
+
+  const activeCoursesCount =
+    user.courseProgress?.filter((p) => !p.isCompleted).length || 0;
+
+  return {
+    purchasedCoursesCount,
+    activeCoursesCount,
+    certificatesCount,
+  };
+};
+
 module.exports = {
   getUserProfile,
   updateUserProfile,
@@ -87,4 +137,5 @@ module.exports = {
   removeUserAvatar,
   getUserCoursesWithStatus,
   getUserCertificates,
+  getUserReports,
 };

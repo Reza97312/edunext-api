@@ -1,6 +1,9 @@
 const Course = require("./courseModel");
 const mongoose = require("mongoose");
 
+const TEACHER_SELECT =
+  "name email phoneNumber gender birthday about profileImage role";
+
 const createCourse = async (courseData) => {
   const course = new Course(courseData);
   return await course.save();
@@ -33,7 +36,8 @@ const getAllCourses = async (filters = {}, options = {}) => {
     .skip(skip)
     .limit(limit)
     .populate("categories", "name")
-    .populate("courseLevel", "name");
+    .populate("courseLevel", "name")
+    .populate("teacher", TEACHER_SELECT);
 
   const [data, total] = await Promise.all([
     query.exec(),
@@ -57,7 +61,8 @@ const getCourseById = async (id) => {
   if (!mongoose.Types.ObjectId.isValid(id)) return null;
   return await Course.findById(id)
     .populate("categories", "name")
-    .populate("courseLevel", "name");
+    .populate("courseLevel", "name")
+    .populate("teacher", TEACHER_SELECT);
 };
 
 const updateCourse = async (id, updateData) => {
@@ -66,11 +71,26 @@ const updateCourse = async (id, updateData) => {
     runValidators: true,
   })
     .populate("categories", "name")
-    .populate("courseLevel", "name");
+    .populate("courseLevel", "name")
+    .populate("teacher", TEACHER_SELECT);
 };
 
 const deleteCourse = async (id) => {
   return await Course.findByIdAndDelete(id);
+};
+
+const getRelatedCourses = async (courseId, categoryIds, limit = 6) => {
+  if (!mongoose.Types.ObjectId.isValid(courseId)) return [];
+
+  return await Course.find({
+    _id: { $ne: courseId },
+    categories: { $in: categoryIds },
+  })
+    .sort({ createdAt: -1 })
+    .limit(limit)
+    .populate("categories", "name")
+    .populate("courseLevel", "name")
+    .populate("teacher", TEACHER_SELECT);
 };
 
 module.exports = {
@@ -79,4 +99,5 @@ module.exports = {
   getCourseById,
   updateCourse,
   deleteCourse,
+  getRelatedCourses,
 };

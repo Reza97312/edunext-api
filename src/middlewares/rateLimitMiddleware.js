@@ -8,7 +8,7 @@ const globalLimiter = rateLimit({
 
   validate: { trustProxy: false },
   handler: (req, res) => {
-    console.log("⚠️ IP Blocked:", req.ip);
+    console.log("IP Blocked:", req.ip);
     res.status(429).json({
       success: false,
       message: "Too many requests! Please wait 1 minute.",

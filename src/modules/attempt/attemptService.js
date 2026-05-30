@@ -1,16 +1,33 @@
 const Attempt = require("./attemptModel");
 const Question = require("../question/questionModel");
 const Exam = require("../exam/examModel");
+const Certificate = require("../certificate/certificateModel");
 const CertificateService = require("../certificate/certificateService");
 
 const submitExam = async (userId, examId, answers) => {
-  const questions = await Question.find({ exam: examId });
   const exam = await Exam.findById(examId);
+  if (!exam) {
+    throw new Error("Exam not found");
+  }
+
+  const passedAttempt = await Attempt.findOne({
+    user: userId,
+    exam: examId,
+    isPassed: true,
+  });
+
+  if (passedAttempt) {
+    throw new Error("You already passed this exam");
+  }
+
+  const questions = await Question.find({ exam: examId });
+  if (!questions || questions.length === 0) {
+    throw new Error("No questions found for this exam");
+  }
 
   let score = 0;
 
   questions.forEach((q) => {
-    // const userAnswer = answers.find((a) => a.questionId === q._id.toString());
     const userAnswer = answers.find(
       (a) => a.questionId.toString() === q._id.toString(),
     );
@@ -21,17 +38,30 @@ const submitExam = async (userId, examId, answers) => {
   });
 
   const totalScore = questions.reduce((acc, q) => acc + q.score, 0);
-  const percent = (score / totalScore) * 100;
 
+  if (totalScore === 0) {
+    throw new Error("Invalid exam scoring configuration");
+  }
+
+  const percent = (score / totalScore) * 100;
   const isPassed = percent >= exam.passingScore;
 
   let certificate = null;
 
   if (isPassed) {
-    certificate = await CertificateService.createCertificate(
-      userId,
-      exam.course,
-    );
+    const existingCertificate = await Certificate.findOne({
+      user: userId,
+      course: exam.course,
+    });
+
+    if (existingCertificate) {
+      certificate = existingCertificate;
+    } else {
+      certificate = await CertificateService.createCertificate(
+        userId,
+        exam.course,
+      );
+    }
   }
 
   const attempt = await Attempt.create({

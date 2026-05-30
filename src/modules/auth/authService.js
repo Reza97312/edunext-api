@@ -21,7 +21,7 @@ const register = async (name, email, password) => {
     name,
     email,
     password: hashedPassword,
-    role: "user",
+    role: ["user"],
   });
 
   return {
@@ -55,7 +55,6 @@ const login = async (email, password) => {
 
 const forgotPassword = async (email) => {
   const user = await authRepository.findUserByEmail(email);
-  await user.save();
 
   if (!user) {
     throw new Error("User with this email does not exist");
@@ -72,7 +71,7 @@ const forgotPassword = async (email) => {
   user.passwordResetExpires = Date.now() + 10 * 60 * 1000;
   await user.save();
 
-  console.log(`🔑 Raw Reset Token for ${email}: ${resetToken}`);
+  console.log(`Raw Reset Token for ${email}: ${resetToken}`);
   return resetToken;
 };
 

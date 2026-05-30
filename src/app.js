@@ -20,6 +20,11 @@ const examRoutes = require("./modules/exam/examRoutes");
 const questionRoutes = require("./modules/question/questionRoutes");
 const attemptRoutes = require("./modules/attempt/attemptRoutes");
 const certificateRoutes = require("./modules/certificate/certificateRoutes");
+const teacherRoutes = require("./modules/teachers/teacherRoutes");
+const userRoutes = require("./modules/user/userRoutes");
+const adminPanelRoutes = require("./modules/adminPanel/adminPanelRoutes");
+const landingRoutes = require("./modules/landing/landingRoutes");
+const checkMaintenanceMode = require("./middlewares/maintenanceMiddleware");
 
 const cookieParser = require("cookie-parser");
 
@@ -73,10 +78,14 @@ app.use(cookieParser());
 
 app.use(globalLimiter);
 app.use(express.json());
+app.use(checkMaintenanceMode);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
+app.use("/api/admin-panel", adminPanelRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/comments", commentRoutes);
+app.use("/api/teachers", teacherRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/replies", replyRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/exams", examRoutes);
@@ -89,10 +98,11 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/course-levels", courseLevelRoutes);
 app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/landing", landingRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
 
 app.get("/health", (req, res) => {
-  res.status(200).json({ status: "OK", message: "AuthX API is running" });
+  res.status(200).json({ status: "OK", message: "Edunext API is running" });
 });
 
 app.use(errorHandler);

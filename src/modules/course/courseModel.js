@@ -36,24 +36,16 @@ const courseSchema = new mongoose.Schema(
       ref: "CourseLevel",
       required: false,
     },
-    teacherName: {
-      type: String,
+    teacher: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
       required: true,
-      trim: true,
     },
     // courseImage: {
     //   type: String,
     //   required: true,
     // },
     courseImage: {
-      type: String,
-      required: false,
-    },
-    // teacherImage: {
-    //   type: String,
-    //   required: true,
-    // },
-    teacherImage: {
       type: String,
       required: false,
     },
