@@ -68,6 +68,14 @@ const createCourse = async (req, res, next) => {
   try {
     const files = req.files || {};
 
+    const courseImagePath = files.courseImage
+      ? files.courseImage[0].path
+      : null;
+
+    const courseVideoPath = files.courseVideo
+      ? files.courseVideo[0].path
+      : null;
+
     // const courseImagePath = files.courseImage[0].path;
     // const courseVideoPath = files.courseVideo[0].path;
 
