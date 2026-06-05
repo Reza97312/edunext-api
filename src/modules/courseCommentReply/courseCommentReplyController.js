@@ -36,7 +36,7 @@ const createReply = async (req, res, next) => {
       content,
     });
 
-    const populated = await reply.populate("user", "name avatar");
+    const populated = await reply.populate("user", "name profileImage");
 
     const user = populated.user || {};
     const avatarFull = makeFullImageUrl(req, user.profileImage);
@@ -100,7 +100,45 @@ const getRepliesByCommentId = async (req, res, next) => {
   }
 };
 
+const deleteReply = async (req, res, next) => {
+  try {
+    const { commentId, replyId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(commentId)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid comment id" });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(replyId)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid reply id" });
+    }
+
+    const foundReply = await replyRepository.findByIdAndCommentId(
+      replyId,
+      commentId,
+    );
+
+    if (!foundReply) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Reply not found" });
+    }
+
+    await replyRepository.deleteById(replyId);
+
+    res
+      .status(200)
+      .json({ success: true, message: "Reply deleted successfully" });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   createReply,
   getRepliesByCommentId,
+  deleteReply,
 };
