@@ -68,15 +68,15 @@ const createCourse = async (req, res, next) => {
   try {
     const files = req.files || {};
 
-    const courseImagePath = files.courseImage[0].path;
-    const courseVideoPath = files.courseVideo[0].path;
+    // const courseImagePath = files.courseImage[0].path;
+    // const courseVideoPath = files.courseVideo[0].path;
 
-    if (!files.courseImage || !files.courseVideo) {
-      return res.status(400).json({
-        success: false,
-        message: "courseImage and courseVideo are required",
-      });
-    }
+    // if (!files.courseImage || !files.courseVideo) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: "courseImage and courseVideo are required",
+    //   });
+    // }
 
     const {
       title,

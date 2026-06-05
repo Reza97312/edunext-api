@@ -28,8 +28,8 @@ const createSchema = Joi.object({
     "string.min": "Description must be at least 10 characters",
   }),
 
-  courseImage: Joi.any().required(),
-  courseVideo: Joi.any().required(),
+  courseImage: Joi.any().optional(),
+  courseVideo: Joi.any().optional(),
 });
 
 const updateSchema = Joi.object({

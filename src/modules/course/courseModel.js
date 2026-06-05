@@ -4,7 +4,7 @@ const courseSchema = new mongoose.Schema(
   {
     courseVideo: {
       type: String,
-      required: true,
+      required: false,
     },
     title: {
       type: String,
@@ -34,7 +34,7 @@ const courseSchema = new mongoose.Schema(
     },
     courseImage: {
       type: String,
-      required: true,
+      required: false,
     },
     rating: {
       type: Number,
