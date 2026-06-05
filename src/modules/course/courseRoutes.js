@@ -32,6 +32,10 @@ const authorize = require("../../middlewares/roleMiddleware");
  *               - description
  *               - teacherName
  *               - price
+ *               - categories
+ *               - courseLevel
+ *               - courseImage
+ *               - courseVideo
  *             properties:
  *               title:
  *                 type: string
@@ -41,10 +45,10 @@ const authorize = require("../../middlewares/roleMiddleware");
  *                 type: array
  *                 items:
  *                   type: string
- *                 description: Optional - array of category IDs
+ *                 description: Required - array of category IDs
  *               courseLevel:
  *                 type: string
- *                 description: Optional - course level ID
+ *                 description: Required - course level ID
  *               teacherName:
  *                 type: string
  *               rating:
@@ -56,11 +60,11 @@ const authorize = require("../../middlewares/roleMiddleware");
  *               courseImage:
  *                 type: string
  *                 format: binary
- *                 description: Optional - course image file
+ *                 description: Required - course image file
  *               courseVideo:
  *                 type: string
  *                 format: binary
- *                 description: Optional - course video file
+ *                 description: Required - course video file
  *     responses:
  *       201:
  *         description: Course created successfully

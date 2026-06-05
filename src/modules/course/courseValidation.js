@@ -6,10 +6,13 @@ const createSchema = Joi.object({
   }),
 
   categories: Joi.alternatives()
-    .try(Joi.array().items(Joi.string().required()).min(1), Joi.string().min(1))
-    .optional(),
+    .try(
+      Joi.array().items(Joi.string().required()).min(1).required(),
+      Joi.string().min(1),
+    )
+    .required(),
 
-  courseLevel: Joi.string().min(1).optional(),
+  courseLevel: Joi.string().min(1).required(),
   teacherId: Joi.string().required().messages({
     "string.empty": "Teacher Id is required",
   }),
@@ -25,8 +28,8 @@ const createSchema = Joi.object({
     "string.min": "Description must be at least 10 characters",
   }),
 
-  courseImage: Joi.any().optional(),
-  courseVideo: Joi.any().optional(),
+  courseImage: Joi.any().required(),
+  courseVideo: Joi.any().required(),
 });
 
 const updateSchema = Joi.object({

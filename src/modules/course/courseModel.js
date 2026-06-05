@@ -2,13 +2,9 @@ const mongoose = require("mongoose");
 
 const courseSchema = new mongoose.Schema(
   {
-    // courseVideo: {
-    //   type: String,
-    //   required: true,
-    // },
     courseVideo: {
       type: String,
-      required: false,
+      required: true,
     },
     title: {
       type: String,
@@ -26,28 +22,19 @@ const courseSchema = new mongoose.Schema(
         ref: "Category",
       },
     ],
-    // courseLevel: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: "CourseLevel",
-    //   required: true,
-    // },
     courseLevel: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "CourseLevel",
-      required: false,
+      required: true,
     },
     teacher: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    // courseImage: {
-    //   type: String,
-    //   required: true,
-    // },
     courseImage: {
       type: String,
-      required: false,
+      required: true,
     },
     rating: {
       type: Number,
