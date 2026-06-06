@@ -76,6 +76,10 @@ const addRoleToUser = async (targetId, role, actorUser) => {
 
   if (!user) throw new Error("User not found");
 
+  if (!Array.isArray(user.role)) {
+    user.role = typeof user.role === "string" ? [user.role] : ["user"];
+  }
+
   const actorRoles = actorUser.role;
 
   if (actorRoles.includes("superadmin")) {
@@ -108,6 +112,10 @@ const removeRoleFromUser = async (targetId, role, actorUser) => {
 
   if (!user) throw new Error("User not found");
 
+  if (!Array.isArray(user.role)) {
+    user.role = typeof user.role === "string" ? [user.role] : ["user"];
+  }
+
   const actorRoles = actorUser.role;
 
   if (actorRoles.includes("superadmin")) {
@@ -137,6 +145,11 @@ const removeRoleFromUser = async (targetId, role, actorUser) => {
   }
 
   throw new Error("Not allowed");
+};
+
+module.exports = {
+  addRoleToUser,
+  removeRoleFromUser,
 };
 
 module.exports = {
