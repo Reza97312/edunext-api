@@ -6,7 +6,7 @@ const create = async (data) => await Comment.create(data);
 const getByCourseId = async (courseId, onlyConfirmed = true) => {
   const filter = { course: courseId };
   if (onlyConfirmed) filter.isConfirmed = true;
-  return await Comment.find(filter).populate("user", "name");
+  return await Comment.find(filter).populate("user", "name profileImage");
 };
 
 const updateStatus = async (commentId, status) => {
