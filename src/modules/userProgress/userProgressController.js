@@ -47,7 +47,7 @@ const updateProgress = async (req, res, next) => {
 
       progress.totalSeconds = totalSeconds;
 
-      if (progress.watchedSeconds >= totalSeconds * 0.95) {
+      if (progress.watchedSeconds >= totalSeconds * 0.9) {
         progress.isCompleted = true;
       }
     }
