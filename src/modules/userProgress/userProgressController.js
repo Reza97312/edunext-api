@@ -25,11 +25,13 @@ const updateProgress = async (req, res, next) => {
     );
 
     if (!progress) {
+      const initialWatched = watchedSeconds <= 60 ? watchedSeconds : 0;
+
       user.courseProgress.push({
         course: courseId,
-        watchedSeconds: Math.min(watchedSeconds, totalSeconds),
+        watchedSeconds: initialWatched,
         totalSeconds,
-        isCompleted: watchedSeconds >= totalSeconds * 0.95,
+        isCompleted: false,
       });
     } else {
       const previous = progress.watchedSeconds || 0;
