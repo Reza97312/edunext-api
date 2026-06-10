@@ -66,23 +66,23 @@ const getCourseDetailState = async (course, userId) => {
     }
   }
 
-  let examStatus = { taken: false };
+  // let examStatus = { taken: false };
 
-  if (userId) {
-    const exam = await Exam.findOne({ course: obj._id });
-    if (exam) {
-      const attempt = await Attempt.findOne({
-        user: userId,
-        exam: exam._id,
-      });
-      if (attempt) {
-        examStatus = {
-          taken: true,
-          isPassed: attempt.isPassed,
-        };
-      }
-    }
-  }
+  // if (userId) {
+  //   const exam = await Exam.findOne({ course: obj._id });
+  //   if (exam) {
+  //     const attempt = await Attempt.findOne({
+  //       user: userId,
+  //       exam: exam._id,
+  //     });
+  //     if (attempt) {
+  //       examStatus = {
+  //         taken: true,
+  //         isPassed: attempt.isPassed,
+  //       };
+  //     }
+  //   }
+  // }
   let examStatus = { taken: false };
 
   if (userId) {
