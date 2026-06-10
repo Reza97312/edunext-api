@@ -3,6 +3,7 @@ const Wishlist = require("../courseWishList/wishlistModel");
 const User = require("../user/userModel");
 const Attempt = require("../attempt/attemptModel");
 const Certificate = require("../certificate/certificateModel");
+const Exam = require("../exam/examModel");
 
 const createCourse = async (data) => {
   return await courseRepository.createCourse(data);
@@ -68,16 +69,35 @@ const getCourseDetailState = async (course, userId) => {
   let examStatus = { taken: false };
 
   if (userId) {
-    const attempt = await Attempt.findOne({
-      user: userId,
-      exam: obj._id,
-    });
+    const exam = await Exam.findOne({ course: obj._id });
+    if (exam) {
+      const attempt = await Attempt.findOne({
+        user: userId,
+        exam: exam._id,
+      });
+      if (attempt) {
+        examStatus = {
+          taken: true,
+          isPassed: attempt.isPassed,
+        };
+      }
+    }
+  }
+  let examStatus = { taken: false };
 
-    if (attempt) {
-      examStatus = {
-        taken: true,
-        isPassed: attempt.isPassed,
-      };
+  if (userId) {
+    const exam = await Exam.findOne({ course: obj._id });
+    if (exam) {
+      const attempt = await Attempt.findOne({
+        user: userId,
+        exam: exam._id,
+      });
+      if (attempt) {
+        examStatus = {
+          taken: true,
+          isPassed: attempt.isPassed,
+        };
+      }
     }
   }
 

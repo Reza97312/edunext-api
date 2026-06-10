@@ -46,9 +46,6 @@ const { validateCreateQuestionsBulk } = require("./questionValidation");
  *                     correctAnswer:
  *                       type: string
  *                       example: "Runtime"
- *                     score:
- *                       type: number
- *                       example: 1
  *     responses:
  *       201:
  *         description: Questions created successfully
@@ -121,8 +118,6 @@ router.get("/exam/:examId", controller.getByExam);
  *                   type: string
  *               correctAnswer:
  *                 type: string
- *               score:
- *                 type: number
  */
 router.put("/:id", controller.updateQuestion);
 

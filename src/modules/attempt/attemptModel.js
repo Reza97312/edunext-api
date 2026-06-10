@@ -20,8 +20,11 @@ const attemptSchema = new mongoose.Schema(
     ],
 
     score: Number,
-
     isPassed: Boolean,
+    isAutoSubmitted: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true },
 );

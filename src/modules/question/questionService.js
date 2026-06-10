@@ -61,7 +61,6 @@ const createQuestionsBulk = async ({ examId, questions }) => {
       text: q.text,
       options: q.options,
       correctAnswer: q.correctAnswer,
-      score: q.score ?? 1,
     };
   });
 

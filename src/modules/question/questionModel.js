@@ -19,11 +19,6 @@ const questionSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-
-    score: {
-      type: Number,
-      default: 1,
-    },
   },
   { timestamps: true },
 );

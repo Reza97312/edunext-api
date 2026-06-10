@@ -11,7 +11,6 @@ const questionItemSchema = Joi.object({
   correctAnswer: Joi.string().min(1).required().messages({
     "string.empty": "Correct answer is required",
   }),
-  score: Joi.number().min(1).default(1),
 });
 
 const createBulkSchema = Joi.object({

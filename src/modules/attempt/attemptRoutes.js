@@ -7,7 +7,7 @@ const { protect } = require("../../middlewares/authMiddleware");
  *  @openapi
  *  /attempts/submit:
  *    post:
- *      summary: Submit exam
+ *      summary: Submit exam answers
  *      tags: [Attempt]
  *      security:
  *        - bearerAuth: []
@@ -38,6 +38,10 @@ const { protect } = require("../../middlewares/authMiddleware");
  *                      answer:
  *                        type: string
  *                        example: "Runtime"
+ *                isAutoSubmitted:
+ *                  type: boolean
+ *                  description: true when auto-submitted due to time expiration
+ *                  example: false
  *      responses:
  *        200:
  *          description: Exam submitted successfully
