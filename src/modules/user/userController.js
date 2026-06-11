@@ -15,7 +15,7 @@ const getAllUsers = async (req, res, next) => {
       success: true,
       count: users.length,
       data: users,
-      meta: result.meta,
+      meta: users.meta,
     });
   } catch (error) {
     next(error);
