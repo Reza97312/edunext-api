@@ -150,11 +150,6 @@ const removeRoleFromUser = async (targetId, role, actorUser) => {
 module.exports = {
   addRoleToUser,
   removeRoleFromUser,
-};
-
-module.exports = {
-  addRoleToUser,
-  removeRoleFromUser,
   getAllUsers,
   getUserById,
   createUser,

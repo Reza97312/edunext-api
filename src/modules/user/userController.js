@@ -2,17 +2,20 @@ const userService = require("./userService");
 
 const getAllUsers = async (req, res, next) => {
   try {
-    const { search, role } = req.query;
+    const { search, role, page = 1, limit = 10 } = req.query;
 
     const users = await userService.getAllUsers({
       search,
       role,
+      page: Number(page),
+      limit: Number(limit),
     });
 
     res.status(200).json({
       success: true,
       count: users.length,
       data: users,
+      meta: result.meta,
     });
   } catch (error) {
     next(error);

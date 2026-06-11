@@ -23,7 +23,7 @@ const saveUser = async (user) => {
 };
 
 const findAllUsers = async (filters = {}) => {
-  const { search, role } = filters;
+  const { search, role, page = 1, limit = 10 } = filters;
 
   const query = {};
 
@@ -38,7 +38,25 @@ const findAllUsers = async (filters = {}) => {
     query.role = role;
   }
 
-  return await User.find(query).select("-password").sort({ createdAt: -1 });
+  const skip = (page - 1) * limit;
+
+  const total = await User.countDocuments(query);
+
+  const users = await User.find(query)
+    .select("-password")
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
+
+  return {
+    data: users,
+    meta: {
+      total,
+      page,
+      pages: Math.ceil(total / limit),
+      limit,
+    },
+  };
 };
 
 const updateUserById = async (id, updateData) => {
