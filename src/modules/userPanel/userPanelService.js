@@ -59,6 +59,7 @@ const deleteProfileImage = async (userId) => {
   const updatedUser = await userPanelRepository.removeUserAvatar(userId);
   return updatedUser;
 };
+
 const getUserReports = async (userId) => {
   const data = await userPanelRepository.getUserReports(userId);
 

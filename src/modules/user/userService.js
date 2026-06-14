@@ -1,5 +1,6 @@
 const userRepository = require("./userRepository");
 const bcrypt = require("bcrypt");
+const { deleteFromCloudinary } = require("../../utils/cloudinaryUtils");
 
 const buildError = (message, statusCode) => {
   const error = new Error(message);
@@ -21,27 +22,83 @@ const getUserById = async (id) => {
   return user;
 };
 
-const createUser = async (userData) => {
+// const createUser = async (userData) => {
+//   const existingUser = await userRepository.findUserByEmail(userData.email);
+
+//   if (existingUser) {
+//     throw buildError("Email already exists", 409);
+//   }
+
+//   const hashedPassword = await bcrypt.hash(userData.password, 10);
+
+//   const createdUser = await userRepository.createUser({
+//     ...userData,
+//     password: hashedPassword,
+//   });
+
+//   return await userRepository.findUserById(createdUser._id);
+// };
+
+// const updateUser = async (id, updateData) => {
+//   const user = await userRepository.findUserById(id);
+
+//   if (!user) {
+//     throw buildError("User not found", 404);
+//   }
+
+//   if (updateData.email && updateData.email !== user.email) {
+//     const existingUser = await userRepository.findUserByEmail(updateData.email);
+
+//     if (existingUser) {
+//       throw buildError("Email already exists", 409);
+//     }
+//   }
+
+//   if (updateData.password) {
+//     updateData.password = await bcrypt.hash(updateData.password, 10);
+//   }
+
+//   const updatedUser = await userRepository.updateUserById(id, updateData);
+//   return updatedUser;
+// };
+
+const mapUploadedFileToUserFields = (file) => {
+  if (!file) return {};
+  return {
+    profileImage: file.path,
+    profileImagePublicId: file.filename,
+  };
+};
+
+const createUser = async (userData, file) => {
   const existingUser = await userRepository.findUserByEmail(userData.email);
 
   if (existingUser) {
+    if (file?.filename) {
+      await deleteFromCloudinary(file.filename);
+    }
     throw buildError("Email already exists", 409);
   }
 
   const hashedPassword = await bcrypt.hash(userData.password, 10);
 
-  const createdUser = await userRepository.createUser({
+  const payload = {
     ...userData,
     password: hashedPassword,
-  });
+    ...mapUploadedFileToUserFields(file),
+  };
 
+  const createdUser = await userRepository.createUser(payload);
   return await userRepository.findUserById(createdUser._id);
 };
 
-const updateUser = async (id, updateData) => {
+const updateUser = async (id, updateData, file) => {
   const user = await userRepository.findUserById(id);
 
   if (!user) {
+    if (file?.filename) {
+      await deleteFromCloudinary(file.filename);
+    }
     throw buildError("User not found", 404);
   }
 
@@ -49,6 +106,9 @@ const updateUser = async (id, updateData) => {
     const existingUser = await userRepository.findUserByEmail(updateData.email);
 
     if (existingUser) {
+      if (file?.filename) {
+        await deleteFromCloudinary(file.filename);
+      }
       throw buildError("Email already exists", 409);
     }
   }
@@ -57,7 +117,19 @@ const updateUser = async (id, updateData) => {
     updateData.password = await bcrypt.hash(updateData.password, 10);
   }
 
+  const oldProfileImagePublicId = user.profileImagePublicId;
+
+  if (file) {
+    updateData.profileImage = file.path;
+    updateData.profileImagePublicId = file.filename;
+  }
+
   const updatedUser = await userRepository.updateUserById(id, updateData);
+
+  if (file && oldProfileImagePublicId) {
+    await deleteFromCloudinary(oldProfileImagePublicId);
+  }
+
   return updatedUser;
 };
 

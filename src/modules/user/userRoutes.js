@@ -3,7 +3,7 @@ const express = require("express");
 const authorize = require("../../middlewares/roleMiddleware");
 
 const { protect } = require("../../middlewares/authMiddleware");
-
+const { upload } = require("../../config/uploadConfig");
 const userController = require("./userController");
 
 const {
@@ -92,16 +92,46 @@ router.get(
  *     requestBody:
  *       required: true
  *       content:
- *         application/json:
+ *         multipart/form-data:
  *           schema:
- *             $ref: '#/components/schemas/UserCreateRequest'
+ *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - password
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: John Doe
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: john@example.com
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 example: secret123
+ *               phoneNumber:
+ *                 type: string
+ *                 example: "09123456789"
+ *               gender:
+ *                 type: string
+ *                 enum: [male, female, other]
+ *                 example: male
+ *               birthday:
+ *                 type: string
+ *                 format: date
+ *                 example: 1995-01-01
+ *               about:
+ *                 type: string
+ *                 example: About me...
+ *               profileImage:
+ *                 type: string
+ *                 format: binary
+ *                 description: User profile image
  *     responses:
  *       201:
  *         description: User created successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/UserResponse'
  *       400:
  *         description: Validation error
  *       401:
@@ -115,6 +145,7 @@ router.post(
   "/",
   protect,
   authorize("admin", "superadmin"),
+  upload.single("profileImage"),
   validateCreateUser,
   userController.createUser,
 );
@@ -159,10 +190,77 @@ router.post(
  *       409:
  *         description: Email already exists
  */
-router.patch(
+/**
+ * @openapi
+ * /users/{id}:
+ *   put:
+ *     summary: Update user
+ *     description: Updates an existing user. Accessible by admin and superadmin only.
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User id
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: John Doe
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: john@example.com
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 example: secret123
+ *               phoneNumber:
+ *                 type: string
+ *                 example: "09123456789"
+ *               gender:
+ *                 type: string
+ *                 enum: [male, female, other]
+ *                 example: male
+ *               birthday:
+ *                 type: string
+ *                 format: date
+ *                 example: 1995-01-01
+ *               about:
+ *                 type: string
+ *                 example: Updated about text
+ *               profileImage:
+ *                 type: string
+ *                 format: binary
+ *                 description: New profile image
+ *     responses:
+ *       200:
+ *         description: User updated successfully
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: User not found
+ *       409:
+ *         description: Email already exists
+ */
+router.put(
   "/:id",
   protect,
   authorize("admin", "superadmin"),
+  upload.single("profileImage"),
   validateUpdateUser,
   userController.updateUser,
 );

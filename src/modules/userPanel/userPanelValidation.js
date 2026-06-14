@@ -19,7 +19,16 @@ const updateProfileSchema = Joi.object({
 }).min(1);
 
 const updateProfileValidator = (req, res, next) => {
-  const { error } = updateProfileSchema.validate(req.body);
+  Object.keys(req.body).forEach((key) => {
+    if (req.body[key] === "") {
+      delete req.body[key];
+    }
+  });
+
+  const { error } = updateProfileSchema.validate(req.body, {
+    abortEarly: false,
+    allowUnknown: false,
+  });
 
   if (error) {
     return res.status(400).json({

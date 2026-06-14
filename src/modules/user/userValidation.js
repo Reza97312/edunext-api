@@ -1,4 +1,5 @@
 const Joi = require("joi");
+const { deleteFromCloudinary } = require("../../utils/cloudinaryUtils");
 
 const roleList = ["user", "admin", "moderator", "teacher", "superadmin"];
 
@@ -12,18 +13,27 @@ const roleSchema = Joi.object({
     }),
 });
 
-const validate = (schema) => (req, res, next) => {
-  Object.keys(req.body).forEach((key) => {
-    if (req.body[key] === "") {
-      delete req.body[key];
+const removeEmptyStrings = (obj) => {
+  Object.keys(obj).forEach((key) => {
+    if (obj[key] === "") {
+      delete obj[key];
     }
   });
+};
+
+const validateCreate = (schema) => async (req, res, next) => {
+  removeEmptyStrings(req.body);
 
   const { error } = schema.validate(req.body, {
     abortEarly: false,
+    allowUnknown: false,
   });
 
   if (error) {
+    if (req.file?.filename) {
+      await deleteFromCloudinary(req.file.filename);
+    }
+
     return res.status(400).json({
       success: false,
       message: "Validation error",
@@ -31,6 +41,39 @@ const validate = (schema) => (req, res, next) => {
         field: err.path[0],
         message: err.message,
       })),
+    });
+  }
+
+  next();
+};
+
+const validateUpdate = (schema) => async (req, res, next) => {
+  removeEmptyStrings(req.body);
+
+  const { error } = schema.validate(req.body, {
+    abortEarly: false,
+    allowUnknown: false,
+  });
+
+  if (error) {
+    if (req.file?.filename) {
+      await deleteFromCloudinary(req.file.filename);
+    }
+
+    return res.status(400).json({
+      success: false,
+      message: "Validation error",
+      errors: error.details.map((err) => ({
+        field: err.path[0],
+        message: err.message,
+      })),
+    });
+  }
+
+  if (Object.keys(req.body).length === 0 && !req.file) {
+    return res.status(400).json({
+      success: false,
+      message: "At least one field is required",
     });
   }
 
@@ -55,7 +98,6 @@ const createUserSchema = Joi.object({
   gender: Joi.string().valid("male", "female", "other").allow(null),
   birthday: Joi.date().iso().allow(null),
   about: Joi.string().max(500).allow(null, ""),
-  profileImage: Joi.string().allow(null, ""),
 });
 
 const updateUserSchema = Joi.object({
@@ -72,12 +114,11 @@ const updateUserSchema = Joi.object({
   gender: Joi.string().valid("male", "female", "other").allow(null),
   birthday: Joi.date().iso().allow(null),
   about: Joi.string().max(500).allow(null, ""),
-  profileImage: Joi.string().allow(null, ""),
-}).min(1);
+});
 
 module.exports = {
-  validateAddRole: validate(roleSchema),
-  validateRemoveRole: validate(roleSchema),
-  validateCreateUser: validate(createUserSchema),
-  validateUpdateUser: validate(updateUserSchema),
+  validateAddRole: validateCreate(roleSchema),
+  validateRemoveRole: validateCreate(roleSchema),
+  validateCreateUser: validateCreate(createUserSchema),
+  validateUpdateUser: validateUpdate(updateUserSchema),
 };
