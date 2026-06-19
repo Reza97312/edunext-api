@@ -54,6 +54,7 @@ const percentageChange = (current, previous) => {
     if (current === 0) return 0;
     return 100;
   }
+  return Number((((current - previous) / previous) * 100).toFixed(1));
 };
 
 const buildPaginationMeta = ({ total, page, limit }) => {
@@ -61,8 +62,6 @@ const buildPaginationMeta = ({ total, page, limit }) => {
 
   return { total, page, pages, limit };
 };
-
-return Number((((current - previous) / previous) * 100).toFixed(1));
 
 const formatTrend = (rows, startDate, days) => {
   const map = new Map();
