@@ -12,10 +12,35 @@ const updatePaymentStatus = async (id, updateData) => {
   return await Payment.findByIdAndUpdate(id, updateData, { new: true });
 };
 
-const getUserPayments = async (userId) => {
-  return await Payment.find({ user: userId })
-    .populate("course", "title price courseImage")
-    .sort({ createdAt: -1 });
+const getUserPayments = async (userId, { page = 1, limit = 10 } = {}) => {
+  const skip = (page - 1) * limit;
+
+  const [data, total] = await Promise.all([
+    Payment.find({ user: userId })
+      .populate("course", "title price courseImage")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+    Payment.countDocuments({ user: userId }),
+  ]);
+
+  return { data, total };
+};
+
+const getAllPayments = async ({ page = 1, limit = 10 } = {}) => {
+  const skip = (page - 1) * limit;
+
+  const [data, total] = await Promise.all([
+    Payment.find({})
+      .populate("course", "title price courseImage")
+      .populate("user", "name profileImage")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+    Payment.countDocuments({}),
+  ]);
+
+  return { data, total };
 };
 
 const getLatestSuccessfulPayments = async (limit = 5) => {
@@ -98,4 +123,5 @@ module.exports = {
   getPaymentSummaryInRange,
   countPaymentsInRange,
   getRevenueTrendInRange,
+  getAllPayments,
 };

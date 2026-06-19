@@ -55,6 +55,12 @@ const percentageChange = (current, previous) => {
     return 100;
   }
 
+  const buildPaginationMeta = ({ total, page, limit }) => {
+    const pages = Math.max(Math.ceil(total / limit), 1);
+
+    return { total, page, pages, limit };
+  };
+
   return Number((((current - previous) / previous) * 100).toFixed(1));
 };
 
@@ -166,8 +172,22 @@ const verifyPayment = async (authority, status) => {
   }
 };
 
-const getUserPaymentHistory = async (userId) => {
-  return await paymentRepository.getUserPayments(userId);
+const getUserPaymentHistory = async (userId, { page = 1, limit = 10 } = {}) => {
+  const { data, total } = await paymentRepository.getUserPayments(userId, {
+    page,
+    limit,
+  });
+
+  return { data, meta: buildPaginationMeta({ total, page, limit }) };
+};
+
+const getAllPayments = async ({ page = 1, limit = 10 } = {}) => {
+  const { data, total } = await paymentRepository.getAllPayments({
+    page,
+    limit,
+  });
+
+  return { data, meta: buildPaginationMeta({ total, page, limit }) };
 };
 
 const getAdminSalesOverview = async (period = 7) => {
@@ -262,4 +282,5 @@ module.exports = {
   getUserPaymentHistory,
   getLatestTransactions,
   getAdminSalesOverview,
+  getAllPayments,
 };

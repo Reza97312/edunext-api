@@ -128,10 +128,63 @@ router.get("/verify", paymentController.verifyPayment);
  *     tags: ["Course - Payment"]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of items per page
  *     responses:
  *       200:
- *         description: List of user payments
+ *         description: Paginated list of user payments
  */
 router.get("/my-payments", protect, paymentController.getMyPayments);
 
+/**
+ * @openapi
+ * /payments/all-payments:
+ *   get:
+ *     summary: Get all payments (admin)
+ *     description: Returns a paginated list of all payments with the same fields as my-payments.
+ *     tags: ["Course - Payment"]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of items per page
+ *     responses:
+ *       200:
+ *         description: Paginated list of all payments
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ */
+router.get(
+  "/all-payments",
+  protect,
+  authorize("admin", "superadmin"),
+  paymentController.getAllPayments,
+);
 module.exports = router;
