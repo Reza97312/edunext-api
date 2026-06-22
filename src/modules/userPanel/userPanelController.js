@@ -12,13 +12,50 @@ const getProfile = async (req, res, next) => {
   }
 };
 
+// const getMyCourses = async (req, res, next) => {
+//   try {
+//     const data = await userPanelService.getUserCoursesWithStatus(req.user._id);
+
+//     res.status(200).json({
+//       status: "success",
+//       data,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
+// const getCertificates = async (req, res, next) => {
+//   try {
+//     const data = await userPanelService.getUserCertificates(req.user._id);
+
+//     res.status(200).json({
+//       status: "success",
+//       data,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
+
 const getMyCourses = async (req, res, next) => {
   try {
-    const data = await userPanelService.getUserCoursesWithStatus(req.user._id);
+    const { page = 1, limit = 10, search = "", sort = "newest" } = req.query;
+
+    const result = await userPanelService.getUserCoursesWithStatus(
+      req.user._id,
+      {
+        page: Number(page),
+        limit: Number(limit),
+        search,
+        sort,
+      },
+    );
 
     res.status(200).json({
       status: "success",
-      data,
+      data: result.data,
+      meta: result.meta,
     });
   } catch (error) {
     next(error);
@@ -27,11 +64,19 @@ const getMyCourses = async (req, res, next) => {
 
 const getCertificates = async (req, res, next) => {
   try {
-    const data = await userPanelService.getUserCertificates(req.user._id);
+    const { page = 1, limit = 10, search = "", sort = "newest" } = req.query;
+
+    const result = await userPanelService.getUserCertificates(req.user._id, {
+      page: Number(page),
+      limit: Number(limit),
+      search,
+      sort,
+    });
 
     res.status(200).json({
       status: "success",
-      data,
+      data: result.data,
+      meta: result.meta,
     });
   } catch (error) {
     next(error);

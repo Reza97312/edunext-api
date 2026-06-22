@@ -8,12 +8,20 @@ const getProfile = async (userId) => {
   return user;
 };
 
-const getUserCoursesWithStatus = async (userId) => {
-  return await userPanelRepository.getUserCoursesWithStatus(userId);
+// const getUserCoursesWithStatus = async (userId) => {
+//   return await userPanelRepository.getUserCoursesWithStatus(userId);
+// };
+
+// const getUserCertificates = async (userId) => {
+//   return await userPanelRepository.getUserCertificates(userId);
+// };
+
+const getUserCoursesWithStatus = async (userId, query) => {
+  return await userPanelRepository.getUserCoursesWithStatus(userId, query);
 };
 
-const getUserCertificates = async (userId) => {
-  return await userPanelRepository.getUserCertificates(userId);
+const getUserCertificates = async (userId, query) => {
+  return await userPanelRepository.getUserCertificates(userId, query);
 };
 
 const updateProfileInfo = async (userId, data) => {

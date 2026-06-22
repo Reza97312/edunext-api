@@ -3,7 +3,10 @@ const Certificate = require("../certificate/certificateModel");
 const Attempt = require("../attempt/attemptModel");
 const Course = require("../course/courseModel");
 
-const getUserCoursesWithStatus = async (userId) => {
+const getUserCoursesWithStatus = async (
+  userId,
+  { page = 1, limit = 10, search = "", sort = "newest" },
+) => {
   const user = await User.findById(userId)
     .populate({
       path: "purchasedCourses",
@@ -66,11 +69,78 @@ const getUserCoursesWithStatus = async (userId) => {
     };
   });
 
-  return data;
+  let filteredData = data;
+
+  if (search.trim()) {
+    filteredData = filteredData.filter((item) =>
+      item.course.title?.toLowerCase().includes(search.toLowerCase()),
+    );
+  }
+
+  filteredData.sort((a, b) => {
+    const dateA = new Date(a.course.createdAt);
+    const dateB = new Date(b.course.createdAt);
+
+    return sort === "oldest" ? dateA - dateB : dateB - dateA;
+  });
+
+  const total = filteredData.length;
+  const pages = Math.ceil(total / limit);
+
+  const paginatedData = filteredData.slice((page - 1) * limit, page * limit);
+
+  return {
+    data: paginatedData,
+    meta: {
+      total,
+      page,
+      pages,
+      limit,
+    },
+  };
 };
 
-const getUserCertificates = async (userId) => {
-  return await Certificate.find({ user: userId }).populate("course");
+// const getUserCertificates = async (userId) => {
+//   return await Certificate.find({ user: userId }).populate("course");
+// };
+
+const getUserCertificates = async (
+  userId,
+  { page = 1, limit = 10, search = "", sort = "newest" },
+) => {
+  let certificates = await Certificate.find({
+    user: userId,
+  })
+    .populate("course")
+    .lean();
+
+  if (search.trim()) {
+    certificates = certificates.filter((item) =>
+      item.course?.title?.toLowerCase().includes(search.toLowerCase()),
+    );
+  }
+
+  certificates.sort((a, b) => {
+    const dateA = new Date(a.createdAt);
+    const dateB = new Date(b.createdAt);
+
+    return sort === "oldest" ? dateA - dateB : dateB - dateA;
+  });
+
+  const total = certificates.length;
+  const pages = Math.ceil(total / limit);
+
+  const data = certificates.slice((page - 1) * limit, page * limit);
+
+  return {
+    data,
+    meta: {
+      total,
+      page,
+      pages,
+      limit,
+    },
+  };
 };
 
 const getUserProfile = async (userId) => {
