@@ -21,4 +21,3 @@ const migrate = async () => {
 };
 
 migrate();
-////////////ddddddddddddddddddddddddddddd/////////////////
