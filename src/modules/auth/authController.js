@@ -36,8 +36,12 @@ const login = async (req, res, next) => {
     });
   } catch (error) {
     if (error.message === "Invalid credentials") {
-      res.status(401);
+      return res.status(401).json({
+        success: false,
+        message: "Email or password is incorrect",
+      });
     }
+
     next(error);
   }
 };
