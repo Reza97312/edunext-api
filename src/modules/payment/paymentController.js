@@ -57,14 +57,16 @@ const verifyPayment = async (req, res, next) => {
     const { token, PayerID } = req.query;
 
     if (!token) {
-      const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
+      const clientUrl =
+        process.env.CLIENT_URL || "https://edu-next-nu.vercel.app";
       return res.redirect(`${clientUrl}/payment/cancel?reason=missing_token`);
     }
 
     const status = PayerID ? "OK" : "CANCELLED";
 
     const result = await paymentService.verifyPayment(token, status);
-    const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
+    const clientUrl =
+      process.env.CLIENT_URL || "https://edu-next-nu.vercel.app";
 
     if (result.success) {
       return res.redirect(`${clientUrl}/payment/success?ref=${result.refId}`);
@@ -72,7 +74,8 @@ const verifyPayment = async (req, res, next) => {
       return res.redirect(`${clientUrl}/payment/cancel`);
     }
   } catch (err) {
-    const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
+    const clientUrl =
+      process.env.CLIENT_URL || "https://edu-next-nu.vercel.app";
 
     if (err.message.includes("already been processed")) {
       return res.redirect(

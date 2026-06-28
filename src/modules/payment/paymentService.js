@@ -106,7 +106,7 @@ const requestPayment = async (userId, courseId) => {
 
   const paypalToken = `EC-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
-  const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
+  const clientUrl = process.env.CLIENT_URL || "https://edu-next-nu.vercel.app";
 
   const paymentUrl = `${clientUrl}/checkout/paypal?token=${paypalToken}&amount=${course.price}&courseName=${encodeURIComponent(course.title)}`;
 
