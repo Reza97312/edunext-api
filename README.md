@@ -8,7 +8,7 @@
 
 The core backend infrastructure powering the EduNext Learning Management System. Built with Node.js, Express, and MongoDB, this RESTful API is fully containerized using Docker and designed for high availability, robust security, and seamless multimedia handling.
 
-Live API Documentation: [Interactive Swagger UI](https://edunext-api-docker.onrender.com/api-docs)
+**Live API Documentation:** [Interactive Swagger UI](https://edunext-api-docker.onrender.com/api-docs)
 
 ## Architecture & Core Features
 
