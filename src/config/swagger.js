@@ -6,7 +6,7 @@ const options = {
     info: {
       title: "Edunext API",
       version: "1.0.0",
-      description: "Authentication & Authorization API",
+      description: "EduNext - Next-Generation Learning Management System",
     },
     tags: [
       {
