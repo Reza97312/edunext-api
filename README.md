@@ -12,20 +12,20 @@ The core backend infrastructure powering the EduNext Learning Management System.
 
 ## Architecture & Core Features
 
-- Advanced Authentication Flow: Implements secure JWT-based authentication with short-lived Access Tokens and long-lived Refresh Tokens. Features silent token rotation on the client-side for an uninterrupted user experience.
-- Enterprise-Grade Security: Hardened Express app using Helmet for secure HTTP headers, express-rate-limit to prevent brute-force/DDoS attacks, and strictly configured CORS policies.
-- Cloud Media Management: Seamless integration with Cloudinary via multer-storage-cloudinary. Automatically categorizes and optimizes user avatars, course thumbnails, and heavy video content.
-- Dockerized Infrastructure: Fully containerized environment with multi-container orchestration (docker-compose) linking the Node.js API with a persistent MongoDB instance.
-- Role-Based Access Control (RBAC): Custom middleware to handle complex permission layers across Admin, Teacher, and Student routes.
+- **Advanced Authentication Flow:** Implements secure JWT-based authentication with short-lived Access Tokens and long-lived Refresh Tokens. Features silent token rotation on the client-side for an uninterrupted user experience.
+- **Enterprise-Grade Security:** Hardened Express app using Helmet for secure HTTP headers, express-rate-limit to prevent brute-force/DDoS attacks, and strictly configured CORS policies.
+- **Cloud Media Management:** Seamless integration with Cloudinary via multer-storage-cloudinary. Automatically categorizes and optimizes user avatars, course thumbnails, and heavy video content.
+- **Dockerized Infrastructure:** Fully containerized environment with multi-container orchestration (docker-compose) linking the Node.js API with a persistent MongoDB instance.
+- **Role-Based Access Control (RBAC):** Custom middleware to handle complex permission layers across Admin, Teacher, and Student routes.
 
 ## Technical Stack
 
-- Runtime & Framework: Node.js (v20), Express.js (v5)
-- Database & ORM: MongoDB, Mongoose
-- Authentication & Security: JSON Web Tokens (JWT), bcrypt, Helmet, Express Rate Limit
-- Validation: Joi
-- File Uploads: Multer, Cloudinary API
-- Deployment & DevOps: Docker, Docker Compose, Render
+- **Runtime & Framework:** Node.js (v20), Express.js (v5)
+- **Database & ORM:** MongoDB, Mongoose
+- **Authentication & Security:** JSON Web Tokens (JWT), bcrypt, Helmet, Express Rate Limit
+- **Validation:** Joi
+- **File Uploads:** Multer, Cloudinary API
+- **Deployment & DevOps:** Docker, Docker Compose, Render
 
 ## Modular Domain Structure
 
