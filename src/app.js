@@ -34,6 +34,7 @@ app.set("trust proxy", 1);
 
 const allowedOrigins = [
   process.env.CLIENT_URL,
+  "https://edunext-api-docker.onrender.com",
   "https://edu-next-nu.vercel.app",
   "http://localhost:3000",
   "http://localhost:5050",
