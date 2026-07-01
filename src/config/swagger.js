@@ -29,7 +29,7 @@ const options = {
 
     servers: [
       {
-        url: "http://localhost:5050/api",
+        url: "https://edunext-api-docker.onrender.com",
       },
     ],
     components: {
