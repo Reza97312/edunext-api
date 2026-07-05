@@ -80,7 +80,7 @@ const refreshToken = async (req, res, next) => {
     if (!token) {
       return res
         .status(401)
-        .json({ success: false, message: "Please login firstttttttttt" });
+        .json({ success: false, message: "Please log in to continue" });
     }
 
     const result = await authService.refreshAccessToken(token);
